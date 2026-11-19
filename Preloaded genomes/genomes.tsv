@@ -1,0 +1,35 @@
+file	organism	replicons	accessions	CDS	MB
+Acinetobacter baumanii.fna	Acinetobacter baumanii	3	NZ_CP045110.1;NZ_CP045108.1;NZ_CP045109.1	3737	4.4
+Agrobacterium tumefaciens.fna	Agrobacterium tumefaciens	6	NZ_CP115841.1;NZ_CP115842.1;NZ_CP115843.1;NZ_CP115844.1;NZ_CP115845.1;NZ_CP115846.1	5563	6.5
+Arabidopsis thaliana.fna	Arabidopsis thaliana	7	NC_003070.9;NC_003071.7;NC_003074.8;NC_003075.7;NC_003076.8;NC_037304.1;NC_000932.1	48265	79.2
+Bacillus cereus.fna	Bacillus cereus	2	NZ_CP034551.1;NZ_CP034552.1	5451	5.8
+Bacillus subtilis.fna	Bacillus subtilis	1	NC_000964.3	4237	5.3
+Bacteroides fragilis.fna	Bacteroides fragilis	2	NC_003228.3;NC_006873.1	4229	5.6
+Bdellovibrio bacteriovorus.fna	Bdellovibrio bacteriovorus	1	NC_005363.1	3555	4.3
+Brucella abortus.fna	Brucella abortus	2	NC_007618.1;NC_007624.1	3159	3.5
+Burkholderia pseudomallei.fna	Burkholderia pseudomallei	2	NZ_AP028077.1;NZ_AP028078.1	6215	7.5
+Campylobacter jejuni.fna	Campylobacter jejuni	1	NC_002163.1	1572	1.9
+Caulobacter crescentus.fna	Caulobacter crescentus	1	NC_011916.1	3886	4.5
+Chryseobacterium indologenes.fna	Chryseobacterium indologenes	2	NZ_UIGS01000002.1;NZ_UIGS01000001.1	4392	5.3
+Chrysiobacterium nematophagum.fna	Chrysiobacterium nematophagum	0	in-house assembly, shipped with the repository	3466	4.7
+Clostridium difficile.fna	Clostridium difficile	2	NZ_CP076401.1;NZ_CP076402.1	3611	4.2
+Enterobacter cloaceae.fna	Enterobacter cloaceae	3	NZ_OW968328.1;NZ_OW968329.1;NZ_OW968330.1	4718	5.6
+Escherichia coli CFT073.fna	Escherichia coli CFT073	1	NZ_CP051263.1	4993	5.7
+Escherichia coli K-12 MG1655.fna	Escherichia coli K-12 MG1655	1	NC_000913.3	4315	5.0
+Escherichia coli NCM3722.fna	Escherichia coli NCM3722	2	NZ_CP011495.1;NZ_CP011496.1	4538	5.1
+Escherichia coli O157-H7 Sakai.fna	Escherichia coli O157-H7 Sakai	3	NC_002695.2;NC_002127.1;NC_002128.1	5155	5.9
+Escherichia coli UPEC UTI89.fna	Escherichia coli UPEC UTI89	2	NC_007946.1;NC_007941.1	4954	5.6
+Francisella tularensis.fna	Francisella tularensis	1	NZ_CP009607.1	1761	2.1
+Helicobacter pylori.fna	Helicobacter pylori	1	NZ_AP026446.1	1584	1.9
+Klebsiella pneumoniae HS11286.fna	Klebsiella pneumoniae HS11286	7	NC_016845.1;NC_016838.1;NC_016846.1;NC_016839.1;NC_016840.1;NC_016847.1;NC_016841.1	5779	6.3
+Listeria monocytogenes.fna	Listeria monocytogenes	1	NC_003210.1	2867	3.2
+Mycobacterium tuberculosis GCF_000195955.fna	Mycobacterium tuberculosis GCF_000195955	1	NC_000962.3	3906	4.8
+Neisseria gonorrhoeae.fna	Neisseria gonorrhoeae	2	NZ_AP023069.1;NZ_AP023070.1	2207	2.3
+Pseudomonas aeruginosa PA14.fna	Pseudomonas aeruginosa PA14	1	NC_008463.1	5961	7.1
+Pseudomonas aeruginosa PAO1.fna	Pseudomonas aeruginosa PAO1	1	NC_002516.2	5572	6.7
+S. aureus NCTC8325.fna	S. aureus NCTC8325	1	NC_007795.1	2767	2.9
+S. aureus USA300.fna	S. aureus USA300	4	NC_007793.1;NC_007790.1;NC_007791.1;NC_007792.1	2856	3.0
+Salmonella enterica SL1344.fna	Salmonella enterica SL1344	4	NC_016810.1;NC_017718.1;NC_017719.1;NC_017720.1	4868	5.5
+Shigella flexneri 2a.fna	Shigella flexneri 2a	2	NC_004337.2;NC_004851.1	4313	4.7
+Streptococcus pyogenes MGAS5005.fna	Streptococcus pyogenes MGAS5005	1	NC_007297.2	1763	1.9
+Streptococcus pyogenes SF370.fna	Streptococcus pyogenes SF370	1	NC_002737.2	1778	1.9
