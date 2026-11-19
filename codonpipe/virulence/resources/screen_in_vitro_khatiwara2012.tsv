@@ -1,0 +1,138 @@
+# Conditionally essential genes of Salmonella enterica serovar Typhimurium,
+# Tn-seq fitness indices from Khatiwara A, Jiang T, Sung SS, Dawoud T, Kim JN,
+# Bhattacharya D, Kim WK, Ricke SC, Kwon YM (2012) Genome scanning for
+# conditionally essential genes in Salmonella enterica serotype Typhimurium.
+# Appl Environ Microbiol 78:3098-3107.  PMID 22367088.  Table S3.
+#
+# The fitness index is output reads / input reads for the gene's insertion
+# mutants; 1.0 is neutral and the paper calls a gene required at <= 0.2 (a
+# five-fold depletion).  Four columns: LB at 37 C is the OPTIMAL-GROWTH
+# control and the only one used to call in vitro fitness cost; diluted LB,
+# LB + bile acid and LB at 42 C are host-mimicking stressors and are carried
+# for audit only (see the module README for why they do not gate rung 6).
+#
+# Strain transfer: the screen is in ATCC 14028 (STM14_ locus tags).  Values
+# were moved to SL1344 one-to-one by identical protein sequence, >=90%
+# sequence identity after k-mer seeding, or unique gene symbol, with
+# duplicate targets resolved so no SL1344 gene receives two values;
+# `orthologue_method` records which applied.  110 of the 113 genes in Table
+# S3 transfer; yiiD, yhcB and STM14_1939 have no protein-coding counterpart
+# in the SL1344 annotation.
+#
+# COVERAGE WARNING: the screen analysed 1,931 of ~4,500 genes (only genes
+# with >= 3 recovered insertion sites), and Table S3 reports only the genes
+# that passed <= 0.2 somewhere.  A gene ABSENT from this file was therefore
+# NOT measured as neutral -- it was either above threshold or never assessed,
+# and the two are not distinguishable from the published table.  Absence is
+# treated as no measurement.
+locus_tag	old_locus_tag	stm14_locus	paper_symbol	gene_symbol	cog_category	function	fitness_index_lb	fitness_index_dlb	fitness_index_bile	fitness_index_42c	orthologue_method
+SL1344_RS00470	SL1344_0093	STM14_0111	surA	surA	Posttranslational modification, protein turnover, chaperones (O)	peptidyl-prolyl cis-trans isomerase	0.36	0.25	0.24	0.17	exact_protein
+SL1344_RS00805	SL1344_0159	STM14_0190	acnB	acnB	Energy production and conversion (C)	bifunctional aconitate hydratase 2/2-methylisocitrate dehydratase	0.19	0.04	0.15	0.14	exact_protein
+SL1344_RS02420	SL1344_0468	STM14_0559	acrB	acrB	Defense mechanisms (V)	acridine efflux pump	0.61	0.81	0.04	0.81	exact_protein
+SL1344_RS02425	SL1344_0469	STM14_0560	acrA	acrA	Cell wall/ membrane/ envelope biogenesis (M)	acridine efflux pump	0.73	0.72	0.07	0.76	exact_protein
+SL1344_RS02480	SL1344_0480	STM14_0572	htpG	htpG	Posttranslational modification, protein turnover, chaperones (O)	heat shock protein 90	0.91	1.19	0.9	0.13	symbol_only
+SL1344_RS02995	SL1344_0581	STM14_0691	ybdA	entS	Carbohydrate transport and metabolism (G)	enterobactin exporter EntS	0.06	0.26	0.41	0.25	exact_protein
+SL1344_RS03030	SL1344_0588	STM14_0699	cstA	cstA	Signal transduction mechanisms (T)	carbon starvation protein	0.65	0.82	0.78	0.19	symbol_only
+SL1344_RS03650	SL1344_0704	STM14_0841			Cell wall/ membrane/ envelope biogenesis (M)	putative ABC transporter permease protein	0.58	0.82	0.5	0.15	exact_protein
+SL1344_RS03710	SL1344_0716	STM14_0853	sdhA	sdhA	Energy production and conversion (C)	succinate dehydrogenase flavoprotein subunit	0.04	0.47	0.4	0.08	exact_protein
+SL1344_RS04560	SL1344_0878	STM14_1056	ybjD		Replication, recombination and repair (L)	hypothetical protein	0.22	0.51	0.96	0.18	exact_protein
+SL1344_RS04565	SL1344_0879	STM14_1057	ybjX		Function unknown (S)	VirK-like protein	1.0	0.82	0.1	0.8	near_identical_0.991
+SL1344_RS04755	SL1344_0915	STM14_1106	aroA	aroA	Amino acid transport and metabolism (E)	3-phosphoshikimate 1-carboxyvinyltransferase	0.68	0.44	0.34	0.13	exact_protein
+SL1344_RS05195	SL1344_0998	STM14_1200	pyrD	pyrD	Nucleotide transport and metabolism (F)	dihydroorotate dehydrogenase 2	0.66	0.0	4.7	0.89	exact_protein
+SL1344_RS05245	SL1344_1008	STM14_1212	lonH		Posttranslational modification, protein turnover, chaperones (O)	putative protease	0.18	0.31	1.53	0.53	exact_protein
+SL1344_RS05255	SL1344_1010	STM14_1214	ompA	ompA	Cell wall/ membrane/ envelope biogenesis (M)	outer membrane protein A	0.4	0.05	0.27	0.34	exact_protein
+SL1344_RS05730	SL1344_1100	STM14_1332	pyrC	pyrC	Nucleotide transport and metabolism (F)	dihydroorotase	1.51	0.14	1.11	0.82	exact_protein
+SL1344_RS05850	SL1344_1123	STM14_1359	rluC	rluC	Translation, ribosomal structure and biogenesis (J)	23S rRNA pseudouridylate synthase C	0.13	0.38	0.85	0.15	symbol_only
+SL1344_RS06075	SL1344_1168	STM14_1408	phoQ	phoQ	Signal transduction mechanisms (T)	sensor protein PhoQ	0.33	0.0	0.01	0.26	exact_protein
+SL1344_RS06115	SL1344_1176	STM14_1416	icdA	icd	Energy production and conversion (C)	isocitrate dehydrogenase	0.2	0.15	0.09	0.08	near_identical_0.995
+SL1344_RS06350	SL1344_1214	STM14_1547	yeaN		Inorganic ion transport and metabolism (P)	putative amino acid/amine transport protein	0.43	0.26	0.4	0.19	exact_protein
+SL1344_RS06550	SL1344_1253	STM14_1600	katE	katE	Inorganic ion transport and metabolism (P)	hydroperoxidase II	0.27	0.21	0.35	0.2	exact_protein
+SL1344_RS06620	SL1344_1266	STM14_1616	rfc	rfc	No related COG	O-antigen polymerase	1.75	0.97	0.04	0.34	symbol_only
+SL1344_RS06675	SL1344_1277	STM14_1630	nlpC		Cell wall/ membrane/ envelope biogenesis (M)	lipoprotein	0.66	0.94	0.08	1.0	exact_protein
+SL1344_RS06750	SL1344_1292	STM14_1649	aroD	aroD	Amino acid transport and metabolism (E)	3-dehydroquinate dehydratase	0.3	0.37	0.34	0.1	exact_protein
+SL1344_RS07285	SL1344_1396	STM14_1768	ydgA		No related COG	putative periplasmic protein	0.51	0.36	0.13	0.0	near_identical_0.998
+SL1344_RS07290	SL1344_1397	STM14_1769	manA	manA	Carbohydrate transport and metabolism (G)	mannose-6-phosphate isomerase	0.27	0.11	0.05	0.05	exact_protein
+SL1344_RS08400	SL1344_1613	STM14_2033	tyrR	tyrR	Transcription (K)	DNA-binding transcriptional regulator TyrR	2.46	1.42	0.19	1.68	exact_protein
+SL1344_RS08460	SL1344_1625	STM14_2045	sapD	sapD	Defense mechanisms (V)	peptide transport protein	0.0	0.03	0.1	0.11	exact_protein
+SL1344_RS08500	SL1344_1633	STM14_2056	rnb		Transcription (K)	exoribonuclease II	0.9	0.56	0.07	0.29	exact_protein
+SL1344_RS08670	SL1344_1666	STM14_2098	yciB		Cell cycle control, cell division, chromosome partitioning (D)	intracellular septation protein A	0.21	0.28	0.05	0.25	exact_protein
+SL1344_RS08750	SL1344_1683	STM14_2118	galU	galU	Cell wall/ membrane/ envelope biogenesis (M)	UTP--glucose-1-phosphate uridylyltransferase subunit GalU	0.0	0.0	0.0	0.0	exact_protein
+SL1344_RS09010	SL1344_1733	STM14_2182	fadR	fadR	Transcription (K)	fatty acid metabolism regulator	0.13	0.33	0.57	0.4	exact_protein
+SL1344_RS09055	SL1344_1742	STM14_2193	minC	minC	Cell cycle control, cell division, chromosome partitioning (D)	septum formation inhibitor	0.86	0.67	0.05	0.54	exact_protein
+SL1344_RS09060	SL1344_1743	STM14_2194	minD	minD	Cell cycle control, cell division, chromosome partitioning (D)	cell division inhibitor MinD	1.13	0.74	0.0	0.32	exact_protein
+SL1344_RS09150	SL1344_0562	STM14_2214	manZ		Carbohydrate transport and metabolism (G)	mannose-specific PTS system protein IID	0.19	0.39	0.61	0.35	near_identical_0.995
+SL1344_RS09455	SL1344_1824	STM14_2299	yebA	mepM	No related COG	hypothetical protein	1.06	0.94	0.12	0.33	exact_protein
+SL1344_RS09590	SL1344_1852	STM14_2332	cheB	cheB	Signal transduction mechanisms (T)	chemotaxis-specific methylesterase	0.51	0.71	0.41	0.14	exact_protein
+SL1344_RS09695	SL1344_1871	STM14_2356	yecA		General function prediction only (R)	hypothetical protein	1.08	1.05	0.59	0.16	exact_protein
+SL1344_RS09930	SL1344_1914	STM14_2407	yedP		General function prediction only (R)	mannosyl-3-phosphoglycerate phosphatase	0.44	0.12	0.38	0.53	exact_protein
+SL1344_RS10710	SL1344_2059	STM14_2576	rfbP		No related COG	galactosephosphotransferase/O-antigen transferase	0.65	0.45	0.01	0.17	exact_protein
+SL1344_RS10715	SL1344_2060	STM14_2577	rfbK	rfbK	Carbohydrate transport and metabolism (G)	phosphomannomutase	1.97	0.3	0.0	0.35	exact_protein
+SL1344_RS10720	SL1344_2061	STM14_2578	rfbM		Cell wall/ membrane/ envelope biogenesis (M)	mannose-1-phosphate guanylyltransferase	0.58	0.07	0.01	0.13	exact_protein
+SL1344_RS10725	SL1344_2062	STM14_2579	rfbN	rfbN	Cell wall/ membrane/ envelope biogenesis (M)	rhamnosyl transferase	0.72	0.55	0.03	0.22	exact_protein
+SL1344_RS10730	SL1344_2063	STM14_2580	rfbU		Cell wall/ membrane/ envelope biogenesis (M)	mannosyl transferase	0.02	0.0	0.0	0.05	exact_protein
+SL1344_RS10750	SL1344_2067	STM14_2584	rfbH	rfbH	Cell wall/ membrane/ envelope biogenesis (M)	lipopolysaccharide biosynthesis protein RfbH	0.0	0.0	0.0	0.0	exact_protein
+SL1344_RS10765	SL1344_2070	STM14_2587	rfbI		Energy production and conversion (C)	CDP-6-deoxy-delta-3,4-glucoseen reductase	4.33	0.02	0.02	82.35	exact_protein
+SL1344_RS10780	SL1344_2073	STM14_2590	rfbD	rfbD	Cell wall/ membrane/ envelope biogenesis (M)	dTDP-4-dehydrorhamnose reductase	0.61	0.44	0.0	0.26	exact_protein
+SL1344_RS10785	SL1344_2074	STM14_2591	rfbB	rfbB	Cell wall/ membrane/ envelope biogenesis (M)	dTDP-glucose 4,6 dehydratase	1.5	0.91	0.15	0.88	exact_protein
+SL1344_RS11220	SL1344_2161	STM14_2691	sanA	sanA	Function unknown (S)	hypothetical protein	0.7	0.71	0.1	0.75	exact_protein
+SL1344_RS11645	SL1344_2237	STM14_2797	ompC		Cell wall/ membrane/ envelope biogenesis (M)	outer membrane porin protein C	1.14	1.28	0.14	0.86	exact_protein
+SL1344_RS11655	SL1344_2239	STM14_2801	rcsB	rcsB	Transcription (K)	transcriptional regulator RcsB	1.36	1.68	0.16	0.11	exact_protein
+SL1344_RS11810	SL1344_2270	STM14_2839	arnT	arnT	Cell wall/ membrane/ envelope biogenesis (M)	4-amino-4-deoxy-L-arabinose transferase	0.52	0.75	0.14	0.61	exact_protein
+SL1344_RS11895	SL1344_2287	STM14_2859	nuoL	nuoL	Energy production and conversion (C)	NADH dehydrogenase subunit L	0.34	0.14	0.46	0.36	symbol_only
+SL1344_RS11940	SL1344_2296	STM14_2868	nuoB	nuoB	Energy production and conversion (C)	NADH dehydrogenase subunit B	0.18	0.24	0.5	0.29	exact_protein
+SL1344_RS12245	SL1344_2356	STM14_2936	sixA	sixA	Signal transduction mechanisms (T)	phosphohistidine phosphatase	0.08	0.02	0.4	0.02	exact_protein
+SL1344_RS12510	SL1344_2399	STM14_2994	ptsJ	ptsJ	Transcription (K)	putative regulatory protein	0.34	0.25	0.44	0.13	exact_protein
+SL1344_RS13235	SL1344_2545	STM14_3163	lepA	lepA	Cell wall/ membrane/ envelope biogenesis (M)	GTP-binding protein LepA	0.11	0.02	0.2	0.04	exact_protein
+SL1344_RS13620	SL1344_2616	STM14_3250	pssA	pssA	Lipid transport and metabolism (I)	phosphatidylserine synthase	0.66	0.63	0.19	0.19	exact_protein
+SL1344_RS14300	SL1344_2746	STM14_3329			No related COG	putative inner membrane protein	0.37	0.37	0.26	0.13	exact_protein
+SL1344_RS15455	SL1344_2968	STM14_3603	mltA	mltA	Cell wall/ membrane/ envelope biogenesis (M)	murein transglycosylase A	1.0	1.09	0.05	0.76	exact_protein
+SL1344_RS15480	SL1344_2971	STM14_3608	recD	recD	Replication, recombination and repair (L)	exonuclease V subunit alpha	0.37	0.49	0.32	0.01	exact_protein
+SL1344_RS15485	SL1344_2972	STM14_3609	recB	recB	Replication, recombination and repair (L)	exonuclease V subunit beta	0.0	0.0	0.0	0.0	exact_protein
+SL1344_RS15495	SL1344_2974	STM14_3611	recC	recC	Replication, recombination and repair (L)	exonuclease V subunit gamma	0.1	0.03	0.04	0.1	exact_protein
+SL1344_RS16040	SL1344_3076	STM14_3745	yggT		Function unknown (S)	putative integral membrane protein	0.33	0.6	0.64	0.14	exact_protein
+SL1344_RS16055	SL1344_3079	STM14_3748	yggW	hemW	Coenzyme transport and metabolism (H)	coproporphyrinogen III oxidase	0.19	0.72	0.6	0.8	exact_protein
+SL1344_RS16475	SL1344_3160	STM14_3859	tolC	tolC	Cell wall/ membrane/ envelope biogenesis (M)	outer membrane channel protein	0.9	0.66	0.01	0.4	symbol_only
+SL1344_RS16640	SL1344_3192	STM14_3898	fadH		Energy production and conversion (C)	2,4-dieonyl-CoA reductase	0.34	0.63	0.42	0.08	exact_protein
+SL1344_RS16940	SL1344_3253	STM14_3962	deaD	deaD	Translation, ribosomal structure and biogenesis (J)	ATP-dependent RNA helicase DeaD	0.42	0.32	0.19	0.39	symbol_only
+SL1344_RS16950	SL1344_3255	STM14_3964	pnp	pnp	Translation, ribosomal structure and biogenesis (J)	polynucleotide phosphorylase/polyadenylase	0.58	0.18	0.26	0.54	exact_protein
+SL1344_RS17435	SL1344_3348	STM14_4070	yhdA	csrD	Signal transduction mechanisms (T)	regulatory protein CsrD	0.31	0.31	0.86	0.16	exact_protein
+SL1344_RS17605	SL1344_3376	STM14_4112	trkA	trkA	Inorganic ion transport and metabolism (P)	potassium transporter peripheral membrane component	0.0	0.0	0.0	0.0	exact_protein
+SL1344_RS17965	SL1344_3448	STM14_4193	trpS	trpS	Translation, ribosomal structure and biogenesis (J)	tryptophanyl-tRNA synthetase	0.35	0.17	0.39	0.24	exact_protein
+SL1344_RS18065	SL1344_3468	STM14_4216	envZ	envZ	Signal transduction mechanisms (T)	osmolarity sensor protein	2.44	1.68	0.02	0.59	exact_protein
+SL1344_RS18070	SL1344_3469	STM14_4217	ompR	ompR	Transcription (K)	osmolarity response regulator	1.98	0.52	0.01	0.34	exact_protein
+SL1344_RS18220	SL1344_3500	STM14_4253			Transcription (K)	putative transcriptional regulator	0.18	0.92	0.41	0.09	exact_protein
+SL1344_RS18255	SL1344_3507	STM14_4264	gntU	gntU	Carbohydrate transport and metabolism (G)	low affinity gluconate transporter	0.53	0.53	0.28	0.05	symbol_only
+SL1344_RS18265	SL1344_3509	STM14_4266	gntR	gntR	Transcription (K)	gluconate operon transcriptional repressor	0.17	0.69	0.36	0.26	exact_protein
+SL1344_RS18305	SL1344_3517	STM14_4276	ggt	ggt	Amino acid transport and metabolism (E)	gamma-glutamyltranspeptidase periplasmic precursor	0.24	0.26	0.68	0.12	exact_protein
+SL1344_RS18430	SL1344_3541	STM14_4304	zntA	zntA	Inorganic ion transport and metabolism (P)	zinc/cadmium/mercury/lead-transporting ATPase	0.35	0.07	0.58	0.2	exact_protein
+SL1344_RS19130	SL1344_3679	STM14_4474	rfaL	rfaL	Cell wall/ membrane/ envelope biogenesis (M)	O-antigen ligase	0.66	0.4	0.01	0.21	symbol_only
+SL1344_RS19135	SL1344_3680	STM14_4475	rfaK		Cell wall/ membrane/ envelope biogenesis (M)	putative hexose transferase	0.94	0.47	0.07	0.49	exact_protein
+SL1344_RS19145	SL1344_3682	STM14_4477	rfaY	rfaY	Transcription (K)	lipopolysaccharide core biosynthesis protein	0.79	0.27	0.02	0.18	exact_protein
+SL1344_RS19150	SL1344_3683	STM14_4478	rfaJ	rfaJ	Cell wall/ membrane/ envelope biogenesis (M)	lipopolysaccharide glucosyltransferase	0.59	0.22	0.0	0.19	exact_protein
+SL1344_RS19155	SL1344_3684	STM14_4479	rfaI	waaO	Cell wall/ membrane/ envelope biogenesis (M)	lipopolysaccharide-alpha-1, 3-D-galactosyltransferase	0.32	0.26	0.06	0.11	exact_protein
+SL1344_RS19160	SL1344_3685	STM14_4480	rfaB	waaB	Cell wall/ membrane/ envelope biogenesis (M)	UDP-D-galactose:(glucosyl)lipopolysaccharide-1, 6-D-galactosyltransferase	0.97	0.15	0.4	0.33	exact_protein
+SL1344_RS19170	SL1344_3687	STM14_4482	rfaP	rfaP	No related COG	lipopolysaccharide core biosynthetic protein	0.03	0.0	0.0	0.0	exact_protein
+SL1344_RS19175	SL1344_3688	STM14_4483	rfaG		Cell wall/ membrane/ envelope biogenesis (M)	glucosyltransferase I	0.1	0.07	0.18	0.02	exact_protein
+SL1344_RS19180	SL1344_3689	STM14_4484	rfaQ	rfaQ	Cell wall/ membrane/ envelope biogenesis (M)	lipopolysaccharide core biosynthesis protein	0.23	0.08	0.02	0.05	symbol_only
+SL1344_RS19285	SL1344_3710	STM14_4509	recG	recG	Translation, ribosomal structure and biogenesis (J)	ATP-dependent DNA helicase RecG	0.54	0.18	0.13	0.41	exact_protein
+SL1344_RS19785	SL1344_3810	STM14_4638	trmE	mnmE	General function prediction only (R)	tRNA modification GTPase TrmE	0.16	0.12	0.11	0.14	exact_protein
+SL1344_RS19845	SL1344_3821	STM14_4649	pstB	pstB	Inorganic ion transport and metabolism (P)	phosphate transporter subunit	0.41	0.18	0.0	0.06	exact_protein
+SL1344_RS20000	SL1344_3852	STM14_4682	rbsK	rbsK	Carbohydrate transport and metabolism (G)	ribokinase	1.05	0.92	0.13	0.66	exact_protein
+SL1344_RS20160	SL1344_3878	STM14_4717	wzzE	wzzE	Cell wall/ membrane/ envelope biogenesis (M)	lipopolysaccharide biosynthesis protein WzzE	0.67	0.54	0.24	0.2	exact_protein
+SL1344_RS20165	SL1344_3879	STM14_4718	wecB	wecB	Cell wall/ membrane/ envelope biogenesis (M)	UDP-N-acetyl glucosamine-2-epimerase	1.08	0.14	0.0	0.33	exact_protein
+SL1344_RS20200	SL1344_3886	STM14_4725			No related COG	4-alpha-L-fucosyltransferase	0.4	0.02	0.04	0.02	near_identical_0.997
+SL1344_RS20210	SL1344_3888	STM14_4727	wecG	wecG	Cell wall/ membrane/ envelope biogenesis (M)	putative UDP-N-acetyl-D-mannosaminuronic acid transferase	0.78	0.19	0.18	0.24	exact_protein
+SL1344_RS20315	SL1344_3905	STM14_4752	uvrD	uvrD	Replication, recombination and repair (L)	DNA-dependent helicase II	0.32	0.48	0.11	0.59	exact_protein
+SL1344_RS20405	SL1344_3923	STM14_4775	yigN	rmuC	Function unknown (S)	DNA recombination protein RmuC	0.53	0.31	0.2	0.69	exact_protein
+SL1344_RS20435	SL1344_3929	STM14_4781	tatC	tatC	Intracellular trafficking, secretion, and vesicular transport (U)	TatABCE protein translocation system subunit	0.24	0.69	0.0	0.31	exact_protein
+SL1344_RS20445	SL1344_3931	STM14_4783	rfaH	rfaH	Transcription (K)	transcriptional activator RfaH	0.2	0.05	0.0	0.02	exact_protein
+SL1344_RS20585	SL1344_3953	STM14_4818	glnL	glnL	Signal transduction mechanisms (T)	nitrogen regulation protein NR(II)	0.57	0.01	0.44	0.4	exact_protein
+SL1344_RS20705	SL1344_3977	STM14_4845			Function unknown (S)	putative cytoplasmic protein	0.64	0.57	0.57	0.13	exact_protein
+SL1344_RS21190	SL1344_4075	STM14_4960	udhA	sthA	Energy production and conversion (C)	soluble pyridine nucleotide transhydrogenase	0.17	0.06	0.46	0.45	exact_protein
+SL1344_RS21435	SL1344_4115	STM14_5017	purH	purH	Nucleotide transport and metabolism (F)	formyltransferase/IMP cyclohydrolase	0.69	0.16	0.58	0.46	exact_protein
+SL1344_RS21670	SL1344_4157	STM14_5075	pgi	pgi	Carbohydrate transport and metabolism (G)	glucose-6-phosphate isomerase	0.32	0.2	0.32	0.09	exact_protein
+SL1344_RS21790	SL1344_4181	STM14_5103	qor		Energy production and conversion (C)	NADPH-dependent quinone oxidoreductase	0.18	0.75	0.49	0.51	exact_protein
+SL1344_RS22005	SL1344_4224	STM14_5157	phnO	phnO	Transcription (K)	aminoalkylphosphonic acid N-acetyltransferase	0.21	0.19	0.26	0.31	symbol_only
+SL1344_RS22405	SL1344_4298	STM14_5245	hflC	hflC	Posttranslational modification, protein turnover, chaperones (O)	FtsH protease regulator HflC	0.42	0.26	0.76	0.14	exact_protein
+SL1344_RS22570	SL1344_4330	STM14_5281	fklB	fklB	Posttranslational modification, protein turnover, chaperones (O)	peptidyl-prolyl cis-trans isomerase	0.07	0.26	0.21	0.0	symbol_only
+SL1344_RS22675	SL1344_4350	STM14_5307		iolR	Transcription (K)	putative transcriptional regulator	0.32	0.25	0.61	0.04	exact_protein

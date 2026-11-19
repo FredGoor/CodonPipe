@@ -12,7 +12,7 @@ import textwrap
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.cm import get_cmap
+from matplotlib.ticker import MaxNLocator
 
 from .colormaps import get_cmap_any
 from matplotlib.colors import LinearSegmentedColormap, Normalize, TwoSlopeNorm
@@ -224,6 +224,55 @@ def _auto_axis_limits(x, y, pad_frac=0.05):
     xpad = (xmax - xmin) * pad_frac if xmax > xmin else 1.0
     ypad = (ymax - ymin) * pad_frac if ymax > ymin else 1.0
     return (xmin - xpad, xmax + xpad), (ymin - ypad, ymax + ypad)
+
+
+def _robust_axis_limits(x, y, pad_frac=0.05, percentile=1.0, tol_frac=0.25, max_frac=0.01):
+    """Axis limits that ignore a few genes sitting far outside the cloud.
+
+    An embedding occasionally places one or two genes a long way from everything
+    else, which stretches that axis and compresses the rest into a corner. For
+    each axis independently: take the [percentile, 100 - percentile] window as
+    the body of the cloud, then keep every point within tol_frac of that window's
+    width beyond it. Points further out are treated as outliers - but only if
+    there are few of them (at most max_frac of the genes, or three, whichever is
+    larger), so a genuinely broad or skewed cloud is never cropped.
+
+    Returns (xlim, ylim, n_x_outside, n_y_outside), the counts being the genes
+    that fall outside the final plotted window.
+    """
+    def one(v):
+        v = np.asarray(v, float)
+        finite = v[np.isfinite(v)]
+        if finite.size == 0:
+            return (0.0, 1.0), 0
+        lo_full, hi_full = float(np.min(finite)), float(np.max(finite))
+        lo_body, hi_body = (float(t) for t in np.percentile(finite, [percentile, 100.0 - percentile]))
+        span_body = hi_body - lo_body
+        if span_body <= 0:
+            return (lo_full, hi_full), 0
+        tol = float(tol_frac) * span_body
+        keep = finite[(finite >= lo_body - tol) & (finite <= hi_body + tol)]
+        if keep.size == 0:
+            return (lo_full, hi_full), 0
+        lo_keep, hi_keep = float(np.min(keep)), float(np.max(keep))
+        n_out = int(finite.size - keep.size)
+        budget = max(3, int(np.ceil(float(max_frac) * finite.size)))
+        if n_out == 0 or n_out > budget:
+            return (lo_full, hi_full), 0
+        pad = (hi_keep - lo_keep) * pad_frac if hi_keep > lo_keep else 1.0
+        lim = (lo_keep - pad, hi_keep + pad)
+        n_outside = int(np.sum((finite < lim[0]) | (finite > lim[1])))
+        return lim, n_outside
+
+    (xlo, xhi), nx = one(x)
+    (ylo, yhi), ny = one(y)
+    if nx == 0:
+        pad = (xhi - xlo) * pad_frac if xhi > xlo else 1.0
+        xlo, xhi = xlo - pad, xhi + pad
+    if ny == 0:
+        pad = (yhi - ylo) * pad_frac if yhi > ylo else 1.0
+        ylo, yhi = ylo - pad, yhi + pad
+    return (xlo, xhi), (ylo, yhi), nx, ny
 
 
 def _nice_step(range_val, target_intervals=5):
@@ -645,15 +694,37 @@ def run_density_dotplot(cfg: dict):
     GRID_MAJOR_LW = float(cfg.get("GRID_MAJOR_LW", 1.0))
     GRID_MAJOR_COLOR = cfg.get("GRID_MAJOR_COLOR", "black")
 
-    CAPTION_SIZE = float(cfg.get("CAPTION_SIZE", 12))
+    CAPTION_SIZE = float(cfg.get("CAPTION_SIZE", 13))
     CAPTION_WEIGHT = cfg.get("CAPTION_WEIGHT", "bold")
-    CAPTION_PAD = float(cfg.get("CAPTION_PAD", 8))
+    CAPTION_PAD = float(cfg.get("CAPTION_PAD", 11))
+    # Axis lettering. Matplotlib's 10 pt default is small next to a 13 pt bold
+    # panel title, which is what made the axis labels and tick numbers hard to
+    # read once a figure carried a dozen panels or more. Both default to the
+    # caption size so one setting moves the whole figure.
+    AXIS_LABEL_SIZE = float(cfg.get("AXIS_LABEL_SIZE", CAPTION_SIZE))
+    TICK_LABEL_SIZE = float(cfg.get("TICK_LABEL_SIZE", max(CAPTION_SIZE - 2.0, 7.0)))
+    # Upper bound on tick count per axis. Fewer, larger numbers read better in a
+    # small panel; 0 restores matplotlib's automatic choice.
+    AXIS_MAX_TICKS = int(cfg.get("AXIS_MAX_TICKS", 5))
     CAPTION_WRAP_ENABLED = bool(cfg.get("CAPTION_WRAP_ENABLED", True))
     CAPTION_WRAP_CHAR_WIDTH = int(cfg.get("CAPTION_WRAP_CHAR_WIDTH", 35))
     CAPTION_MAX_NAME_LINES = cfg.get("CAPTION_MAX_NAME_LINES", 2)
 
-    SUBPLOT_WSPACE = float(cfg.get("SUBPLOT_WSPACE", 0.20))
-    SUBPLOT_HSPACE = float(cfg.get("SUBPLOT_HSPACE", 0.30))
+    # Panel spacing. The two-line panel titles ("name" over "n = ...") need more
+    # vertical room than matplotlib's default leaves, and the y-axis label of a
+    # panel must clear the tick numbers of the panel to its left.
+    SUBPLOT_WSPACE = float(cfg.get("SUBPLOT_WSPACE", 0.42))
+    SUBPLOT_HSPACE = float(cfg.get("SUBPLOT_HSPACE", 0.48))
+    #: Smallest acceptable gap between stacked panel rows, in inches, measured
+    #: between the axes themselves. About 1.0 in of it is spent on the lower
+    #: panel's two-line title and its pad and on the upper panel's axis label
+    #: and tick numbers, so 1.35 in leaves roughly a third of an inch clear.
+    #: Set 0 to use SUBPLOT_HSPACE exactly as given.
+    ROW_GAP_IN = float(cfg.get("ROW_GAP_IN", 1.20))
+    #: The same floor across columns. Roughly 0.6 in of it is spent on the
+    #: right-hand panel's y-axis label and tick numbers, so 1.25 in keeps the
+    #: label clear of the neighbouring panel's frame.
+    COL_GAP_IN = float(cfg.get("COL_GAP_IN", 1.25))
 
     SHOW_COLORBAR = bool(cfg.get("SHOW_COLORBAR", True))
     CUSTOM_CMAPS_XLSX = cfg.get("CUSTOM_CMAPS_XLSX", "")
@@ -757,7 +828,22 @@ def run_density_dotplot(cfg: dict):
     Xg = umap_df["X"].to_numpy(float)
     Yg = umap_df["Y"].to_numpy(float)
     all_xy = np.column_stack([Xg, Yg])
-    xlim, ylim = _auto_axis_limits(Xg, Yg)
+    if bool(cfg.get("DENSITY_ROBUST_LIMITS", True)):
+        pct = float(cfg.get("DENSITY_ROBUST_PERCENTILE", 0.5) or 0.5)
+        xlim, ylim, n_x_trim, n_y_trim = _robust_axis_limits(Xg, Yg, percentile=pct)
+        if n_x_trim or n_y_trim:
+            parts = []
+            if n_x_trim:
+                parts.append(f"{n_x_trim} gene(s) on the X axis")
+            if n_y_trim:
+                parts.append(f"{n_y_trim} gene(s) on the Y axis")
+            print(f"[INFO] Axis scaling: {' and '.join(parts)} were stretching the scale and are outside "
+                  f"the plotted window. Untick 'Trim axis-scale outliers' "
+                  f"to show the full range.")
+        else:
+            print("[INFO] Axis scaling: no outlier was stretching the axes; full range plotted.")
+    else:
+        xlim, ylim = _auto_axis_limits(Xg, Yg)
     try:
         if cfg.get("DENSITY_XMIN", None) not in (None, ""):
             xlim = (float(cfg.get("DENSITY_XMIN")), xlim[1])
@@ -886,7 +972,7 @@ def run_density_dotplot(cfg: dict):
                 linewidths=ALL_SCATTER_EDGE_WIDTH,
             )
         ax.set_xlim(xlim); ax.set_ylim(ylim)
-        ax.set_xlabel(X_LABEL); ax.set_ylabel(Y_LABEL)
+        _style_panel_axes(ax)
         if DRAW_GRID:
             _draw_grid(ax, xlim, ylim, major_step=GRID_MAJOR_STEP, major_alpha=GRID_MAJOR_ALPHA,
                        major_lw=GRID_MAJOR_LW, major_color=GRID_MAJOR_COLOR)
@@ -920,7 +1006,39 @@ def run_density_dotplot(cfg: dict):
     fig_w = PANEL_W_IN * ncols
     fig_h = PANEL_H_IN * nrows
     fig, axes = plt.subplots(nrows, ncols, figsize=(fig_w, fig_h), squeeze=False)
-    plt.subplots_adjust(wspace=SUBPLOT_WSPACE, hspace=SUBPLOT_HSPACE)
+    # Vertical spacing. SUBPLOT_HSPACE is a FRACTION of the average panel
+    # height, so the same value leaves less and less room as rows are added:
+    # at five rows the x-axis label of one row runs into the two-line title of
+    # the row below. ROW_GAP_IN states the gap that actually has to be there,
+    # in inches, and the fraction is raised to meet it when the caller's value
+    # is too small.
+    top_frac, bottom_frac = 0.90, 0.11
+    left_frac, right_frac = 0.125, 0.90
+
+    def _spacing(fraction, gap_in, n, usable_in):
+        """Raise a matplotlib spacing fraction until the gap is gap_in inches."""
+        if n < 2 or gap_in <= 0:
+            return float(fraction)
+        denom = usable_in - gap_in * (n - 1)
+        if denom <= 0:
+            return float(fraction)
+        return max(float(fraction), gap_in * n / denom)
+
+    hspace = _spacing(SUBPLOT_HSPACE, ROW_GAP_IN, nrows,
+                      (top_frac - bottom_frac) * fig_h)
+    wspace = _spacing(SUBPLOT_WSPACE, COL_GAP_IN, ncols,
+                      (right_frac - left_frac) * fig_w)
+    plt.subplots_adjust(wspace=wspace, hspace=hspace,
+                        top=top_frac, bottom=bottom_frac)
+
+    def _style_panel_axes(ax):
+        """Axis lettering shared by every panel of the 2D map."""
+        ax.set_xlabel(X_LABEL, fontsize=AXIS_LABEL_SIZE)
+        ax.set_ylabel(Y_LABEL, fontsize=AXIS_LABEL_SIZE)
+        ax.tick_params(axis="both", which="major", labelsize=TICK_LABEL_SIZE)
+        if AXIS_MAX_TICKS > 0:
+            ax.xaxis.set_major_locator(MaxNLocator(nbins=AXIS_MAX_TICKS))
+            ax.yaxis.set_major_locator(MaxNLocator(nbins=AXIS_MAX_TICKS))
 
     def _panel_axes(i):
         r, c = divmod(i, ncols)
@@ -996,7 +1114,7 @@ def run_density_dotplot(cfg: dict):
                 )
 
             ax.set_xlim(xlim); ax.set_ylim(ylim)
-            ax.set_xlabel(X_LABEL); ax.set_ylabel(Y_LABEL)
+            _style_panel_axes(ax)
             if DRAW_GRID:
                 _draw_grid(ax, xlim, ylim, major_step=GRID_MAJOR_STEP, major_alpha=GRID_MAJOR_ALPHA,
                            major_lw=GRID_MAJOR_LW, major_color=GRID_MAJOR_COLOR)
@@ -1079,7 +1197,7 @@ def run_density_dotplot(cfg: dict):
             )
 
         ax.set_xlim(xlim); ax.set_ylim(ylim)
-        ax.set_xlabel(X_LABEL); ax.set_ylabel(Y_LABEL)
+        _style_panel_axes(ax)
         if DRAW_GRID:
             _draw_grid(ax, xlim, ylim, major_step=GRID_MAJOR_STEP, major_alpha=GRID_MAJOR_ALPHA,
                        major_lw=GRID_MAJOR_LW, major_color=GRID_MAJOR_COLOR)
@@ -1094,11 +1212,13 @@ def run_density_dotplot(cfg: dict):
             label = "Fold enrichment (cluster vs all)" if ENRICHMENT_SCALE == "ratio" else "log2 enrichment (cluster vs all)"
             cbar = fig.colorbar(sm_for_colorbar, ax=axes, fraction=0.02, pad=0.02)
             cbar.set_label(label, fontsize=CAPTION_SIZE, fontweight=CAPTION_WEIGHT)
+            cbar.ax.tick_params(labelsize=TICK_LABEL_SIZE)
         else:
             sm = ScalarMappable(cmap=cmap_density, norm=Normalize(vmin=0.0, vmax=1.0))
             sm.set_array(np.array([0.0, 1.0], dtype=float))
             cbar = fig.colorbar(sm, ax=axes, fraction=0.02, pad=0.02)
             cbar.set_label("relative local density", fontsize=CAPTION_SIZE, fontweight=CAPTION_WEIGHT)
+            cbar.ax.tick_params(labelsize=TICK_LABEL_SIZE)
 
     if FIGURE_SUPTITLE:
         fig.suptitle(FIGURE_SUPTITLE, fontsize=max(float(CAPTION_SIZE) + 1.0, 12.0), fontweight=CAPTION_WEIGHT)

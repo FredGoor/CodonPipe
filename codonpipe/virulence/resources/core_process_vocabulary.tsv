@@ -1,0 +1,25 @@
+# CodonPipe virulence discovery - core cellular process vocabulary
+# RefSeq product-name patterns identifying functions required for growth in vitro.
+# A gene matching any of these cannot satisfy Falkow postulate 2 cleanly, because a
+# disruption phenotype in the host cannot be separated from a generic growth defect.
+# This formalises the manual removal of housekeeping and general stress-response genes
+# that curated virulence-factor screens otherwise require.
+field	pattern	note
+product	ribosomal protein|ribosome (biogenesis|assembly|maturation|silencing)|ribosome-binding	Translation machinery.
+product	--tRNA ligase|aminoacyl-tRNA|tRNA (synthetase|ligase)	Aminoacyl-tRNA synthetases.
+product	(translation|peptide chain release) (initiation|elongation|release) factor|elongation factor (Tu|G|P|Ts)|initiation factor IF	Translation factors.
+product	DNA polymerase|DNA gyrase|DNA topoisomerase|DNA ligase|DNA primase|replicative DNA helicase|replication (initiation|terminator) protein|beta sliding clamp|DNA replication	DNA replication.
+product	DNA-directed RNA polymerase|transcription (termination|antitermination|elongation) factor|RNA polymerase (sigma factor RpoD|omega|core)	Core transcription machinery.
+product	cell division protein|septum (formation|site)|cell shape-determining|rod shape-determining|divisome|FtsZ|FtsA|MreB	Cell division and shape.
+product	peptidoglycan|murein|UDP-N-acetylglucosamine|UDP-N-acetylmuramate|D-alanine--D-alanine ligase|penicillin-binding protein	Peptidoglycan biosynthesis.
+product	lipid A|Kdo|3-deoxy-D-manno-oct|lipid-A-disaccharide|UDP-3-O-	Lipid A and LPS core, essential in Enterobacterales.
+product	fatty acid synth|acyl carrier protein|\[acyl-carrier-protein\]|beta-ketoacyl-ACP|acetyl-CoA carboxylase	Fatty-acid biosynthesis.
+product	ATP synthase|F0F1|F1F0	ATP synthase complex.
+product	^(?!.*(?:type [IVX]+ secretion|secretion system|fimbri|pilus|pilin|curli|T3SS|T4SS|T6SS|injectisome)).*(?:chaperon|GroEL|GroES|DnaK|DnaJ|GrpE|HtpG|trigger factor|Hsp[0-9]+|protein disaggregation)	General chaperones.
+product	Lon protease|ATP-dependent (Clp|protease)|ClpP|ClpX|ClpA|ClpB|HslV|HslU|FtsH	Housekeeping proteolysis.
+product	glyceraldehyde-3-phosphate dehydrogenase|phosphofructokinase|enolase|pyruvate kinase|triose-phosphate isomerase|phosphoglycerate (kinase|mutase)|citrate synthase|aconitate hydratase|isocitrate dehydrogenase|succinate dehydrogenase|fumarate hydratase|malate dehydrogenase|2-oxoglutarate dehydrogenase	Glycolysis and the TCA cycle.
+product	NADH-quinone oxidoreductase|NADH dehydrogenase|cytochrome (bd|bo|c) (oxidase|ubiquinol)|ubiquinol oxidase	Respiratory chain.
+product	(purine|pyrimidine) (nucleotide )?biosynthesis|phosphoribosyl|orotate|carbamoyl-phosphate synthase|ribonucleoside-diphosphate reductase|thymidylate synthase|dihydrofolate reductase|dihydroorotase	Nucleotide biosynthesis.
+product	thiamine|riboflavin|pantothenate|biotin|folate|pyridoxal|lipoyl|molybdopterin|coenzyme A biosynthesis|heme biosynthesis|protoporphyrin	Cofactor biosynthesis.
+product	preprotein translocase|protein translocase subunit Sec|Tat (protein transport|pathway)|signal peptidase|signal recognition particle	General protein export, distinct from dedicated virulence secretion systems.
+product	50S|30S|16S rRNA|23S rRNA|rRNA (methyltransferase|pseudouridine)	Ribosome and rRNA maturation.

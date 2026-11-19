@@ -1,0 +1,48 @@
+# restrict_taxon: NCBI taxon id(s), semicolon-separated, that this rule applies to.
+# Empty means the rule is universal. SPI-1 and SPI-2 are gene-symbol patterns for
+# named Salmonella islands and are scoped to the Salmonella genus (taxon 590):
+# sseA-sseL and sopB occur in other enterobacteria without implying those islands,
+# and applying them genome-wide mislabelled clusters in Sakai, UTI89 and KPPR1.
+# CodonPipe virulence discovery - controlled vocabulary
+# Two jobs: (i) supply weak supporting evidence from RefSeq product names and gene symbols,
+# (ii) assign the functional subcategories used as cluster columns in CodonPipe workbooks.
+# Patterns are Python regular expressions applied case-insensitively with re.search.
+# Weights are deliberately low: at standard stringency a vocabulary match alone never
+# creates a virulence call, it only corroborates database evidence.
+# as_cluster     1 = this subcategory is reported as a gene-cluster column in the output
+#                workbook; 0 = the rule contributes evidence only (it names an evidence
+#                type, not a functional class of virulence factor).
+# machinery      dedicated   = host-attack machinery with no known function outside a host
+#                             (T3SS/T6SS apparatus and effectors, toxins, immune evasion)
+#                dual_use    = host-facing but also serving environmental or biofilm
+#                             functions (fimbriae and curli, flagella and chemotaxis,
+#                             siderophores, O-antigen, capsule). Whether these belong in
+#                             the strict tier is a biological judgement, so it is exposed
+#                             as the strict_requires_dedicated parameter rather than fixed.
+#                regulatory  = regulators of virulence programmes
+#                unclassified= not assigned; never excluded by the dedicated-only option
+subcategory	field	pattern	axis_hint	weight	as_cluster	machinery	note	restrict_taxon
+SPI-1	gene	^(inv[A-J]|spa[M-S]|prg[H-K]|sic[AP]|sip[A-D]|sop[BDE]2?|iacP|org[A-C]|hil[ACD]|avrA|sptP|iagB)$	host_interaction	0.6	1	dedicated	Salmonella pathogenicity island 1 structural, regulatory and effector genes.	590
+SPI-2	gene	^(ssa[A-Z]|sse[A-L]|ssr[AB]|ssc[AB]|sif[AB]|pipB2?|sopD2|spiC|steB)$	host_interaction	0.6	1	dedicated	Salmonella pathogenicity island 2 and its translocated effectors.	590
+T3SS	product	type (III|3) secretion|T3SS|injectisome|translocon|needle (complex|protein)|secretion system effector	host_interaction	0.5	1	dedicated	Type III secretion machinery and effectors.	
+T3SS	gene	^(esc[A-Z]|esp[A-Z]|sep[A-Z]|mxi[A-Z]|spa[0-9]+|ipa[A-D]|icsA|icsB|virB|virF|ipg[A-F])$	host_interaction	0.5	1	dedicated	Shigella / EPEC-EHEC type III secretion nomenclature.	543
+T6SS	product	type (VI|6) secretion|T6SS|Hcp\b|VgrG|TssK|TssL|TssM|ClpV	host_interaction	0.5	1	dedicated	Type VI secretion machinery.	
+T6SS	gene	^(tss[A-M]|tag[A-J]|hcp[0-9]?|vgrG[0-9]?|clpV|vipA|vipB|sci[A-Z])$	host_interaction	0.5	1	dedicated		
+Secretion systems (other)	product	type (I|II|IV|V|VII) secretion|ESX-[0-9]|Tad |Dot/Icm|conjugal transfer protein Tra	host_interaction	0.4	1	dedicated	Non-T3SS/T6SS dedicated secretion systems. The housekeeping Sec and Tat pathways are deliberately excluded.	
+Toxins	product	^(?!.*(?:antitoxin|toxin-antitoxin|addiction module|toxin/antitoxin)).*(?:toxin|h(a)?emolysin|cytolysin|leukocidin|leucocidin|cytotoxic|ADP-ribosyl|phospholipase C|lecithinase|cholesterol-dependent)	host_interaction	0.6	1	dedicated	Secreted and translocated toxins.	
+Toxins	gene	^(stx[12]?[AB]?|hly[A-E]|ehx[A-D]|cdt[ABC]|cnf[12]|cl[yb]A|sen|stn|set[123]|pet|astA|lt[AB]|hla|hlb|hld|hlg[ABC]|luk[A-Z]+|tst|sea|seb|sec|sed|see|pvl|plc[AB]|hl[yg])$	host_interaction	0.6	1	dedicated		
+Adhesins / fimbriae / curli	product	fimbri|adhesin|pilin|pilus|curli|autotransporter|intimin|invasin|MSCRAMM|fibronectin-binding|collagen-binding|clumping factor|haemagglutinin|hemagglutinin	host_interaction	0.6	1	dual_use	Adhesive surface structures.	
+Adhesins / fimbriae / curli	gene	^(fim[A-Z]|csg[A-G]|lpf[A-E]|saf[A-D]|bcf[A-H]|pef[A-D]|sef[A-D]|st[bcdefhij][A-E]|pap[A-K]|sfa[A-Z]|foc[A-Z]|agg[A-D]|aaf[A-D]|ecp[A-E]|elf[A-D]|fml[A-D]|mat[A-E]|eae[A-Z]?|tir|clf[AB]|fnb[AB]|cna|sdr[CDE])$	host_interaction	0.6	1	dual_use		
+O-antigen / LPS	product	O-antigen|O antigen|lipopolysaccharide|O-unit|polysaccharide (flippase|polymerase)|chain length determinant	ambiguous	0.5	1	dual_use	O-antigen is dispensable in vitro; lipid A and core biosynthesis are not, and are separated on the in-vitro axis.	
+O-antigen / LPS	gene	^(rfb[A-Z]|rfa[A-Z]|waa[A-Z]|wba[A-Z]|wz[abcxyz]|rml[A-D]|gmd|fcl|ddhA|rfc)$	ambiguous	0.8	1	dual_use		
+Capsule	product	capsul|K-antigen|polysialic|colanic acid	host_interaction	0.5	1	dual_use	Capsular polysaccharide, a canonical immune-evasion structure.	
+Capsule	gene	^(cps[A-Z0-9]+|kps[A-Z]|wca[A-Z]|wzi|vip[AB]|cap[5-8][A-P])$	host_interaction	0.5	1	dual_use		
+Siderophores / iron uptake	product	siderophore|enterobactin|aerobactin|yersiniabactin|salmochelin|pyoverdin|pyochelin|staphyloferrin|ferrichrome|h(a)?em(e|in)? (uptake|transport|receptor|oxygenase)|iron\(III\)|ferric (uptake|iron|siderophore)|TonB|iron ABC transporter	ambiguous	0.5	1	dual_use	Metal acquisition under host-imposed restriction; mutants frequently also lose fitness in metal-poor media.	
+Siderophores / iron uptake	gene	^(ent[A-F]|fep[A-G]|fes|iro[B-E N]|iuc[A-D]|iutA|sit[A-D]|feo[A-C]|fhu[A-F]|chu[A-Z]|shu[A-Z]|ybt[A-Z]|irp[12]|ireA|cirA|fiu|fyuA|sfu[A-C]|hmu[A-Z]|tonB|exb[BD]|sfa[AB]|isd[A-G]|hts[ABC]|sir[ABC]|fhu[CDG])$	ambiguous	0.5	1	dual_use		
+Flagellum / motility / chemotaxis	product	flagell|chemotaxis|methyl-accepting chemotaxis|motility protein|twitching	host_interaction	0.4	1	dual_use	Flagellar and twitching motility: dispensable in broth, host-relevant and strongly immunogenic.	
+Flagellum / motility / chemotaxis	gene	^(fl[gihjkln][A-Z]|fli[A-Z]|mot[AB]|che[A-Z]|tsr|tar|trg|tap|aer|pil[A-Z])$	host_interaction	0.4	1	dual_use		
+Immune evasion	product	complement|serum resistance|antiphagocytic|immune evasion|immunoglobulin-binding|\bstaphylococcal protein A\b|\bSCIN\b|\bCHIPS\b|staphylokinase|antimicrobial peptide resistance	host_interaction	0.5	1	dedicated	Direct interference with host immune effectors.	
+Intracellular survival	product	intracellular surviv|phagosom|vacuol|SifA|macrophage surviv	host_interaction	0.5	1	dedicated	Survival and replication inside host cells.	
+Regulation of virulence	product	virulence (regulator|transcriptional)|two-component system .*virulence|\bSsrB\b|\bPhoP\b|\bPhoQ\b|\bHilA\b	virulence_general	0.3	1	regulatory	Virulence regulators typically have pleiotropic in vitro phenotypes.	
+Annotated effector / translocated protein	product	(secretion system|type (III|IV|VI)) effector|translocated (effector|protein)|effector (protein|kinase|protease|glycosyltransferase|ligase)|T3SS effector	host_interaction	1.2	0	dedicated	RefSeq curators label translocated effectors explicitly; this is strong, host-directed annotation evidence.	
+Annotated virulence factor	product	virulence[ -](factor|protein|associated|related)|virulence-associated|pathogenicity[ -](island|factor|protein|related)|invasion protein|invasin\b	host_interaction	1.0	0	unclassified	Product names in which the RefSeq annotation itself asserts a virulence or invasion role.	

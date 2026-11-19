@@ -1,0 +1,57 @@
+# CodonPipe virulence discovery - Gene Ontology axes
+# Edit freely: every row is validated against the live ontology at run time and
+# obsolete or unknown terms are reported in the provenance report.
+# axis            host_interaction = direct engagement with the host (Falkow postulate 2 is
+#                 interpretable: disruption is expected to attenuate without a generic growth cost)
+#                 core_process     = function required for growth in vitro, so a disruption
+#                 phenotype cannot be attributed to host interaction
+# weight          NOT APPLIED. The descendant closure is fetched in root-chunks, so a
+#                 term cannot be attributed to the root that contributed it without
+#                 re-fetching per root, which would invalidate the shipped offline cache.
+#                 Each matched term currently contributes a flat 0.5, capped at three terms
+#                 per axis. The column is retained as documentation of intended relative
+#                 strength; to down-weight a broad root, disable it instead.
+# enabled         1 to use the term, 0 to keep it on record but inactive
+axis	go_id	go_name	weight	enabled	note
+host_interaction	GO:0051701	biological process involved in interaction with host	1.0	1	Core host-interaction branch (replaces the now-obsolete GO:0009405 'pathogenesis').
+host_interaction	GO:0044403	biological process involved in symbiotic interaction	0.8	1	Parent branch covering symbiont/host processes.
+host_interaction	GO:0052031	symbiont-mediated perturbation of host defense response	1.0	1	Immune modulation / evasion.
+host_interaction	GO:0052572	response to host immune response	1.0	1	Sensing and countering host immunity.
+host_interaction	GO:0075136	response to host	0.8	1	Host-cue sensing.
+host_interaction	GO:0044650	adhesion of symbiont to host cell	1.0	1	Adhesins, fimbriae, afimbrial adhesins.
+host_interaction	GO:0044409	symbiont entry into host	1.0	1	Invasion.
+host_interaction	GO:0030254	protein secretion by the type III secretion system	1.0	1	T3SS translocation.
+host_interaction	GO:0019836	symbiont-mediated hemolysis of host erythrocyte	1.0	1	Haemolysins.
+host_interaction	GO:0031640	killing of cells of another organism	0.6	0	Disabled: its descendants are dominated by bacteriocins, i.e. interbacterial competition, not host interaction.
+host_interaction	GO:0090729	toxin activity	1.0	1	Molecular-function evidence for toxins.
+host_interaction	GO:0043657	host cell	1.0	1	Localisation inside or on a host cell.
+host_interaction	GO:0033644	host cell membrane	1.0	1	Translocon and effector targeting.
+host_interaction	GO:0020002	host cell plasma membrane	1.0	1	Effector targeting.
+host_interaction	GO:0030430	host cell cytoplasm	1.0	1	Translocated effectors.
+host_interaction	GO:0009289	pilus	0.8	1	Pili and fimbriae.
+host_interaction	GO:0005576	extracellular region	0.5	0	Disabled: the part_of closure pulls in periplasmic space and cell outer membrane, which are bacterial compartments. 238 SL1344 genes drew host-axis credit from this root and nothing else; 32 reached rung 3.
+host_interaction	GO:0009986	cell surface	0.5	0	Disabled with GO:0005576: surface exposure is a localisation, not host engagement.
+host_interaction	GO:0044419	biological process involved in interspecies interaction between organisms	0.4	0	Very broad parent; disabled by default, enable for maximum sensitivity.
+core_process	GO:0006412	translation	1.0	1	Translation machinery is required for growth in vitro.
+core_process	GO:0006413	translational initiation	1.0	1	
+core_process	GO:0006414	translational elongation	1.0	1	
+core_process	GO:0043039	tRNA charging	1.0	1	Aminoacyl-tRNA synthetases.
+core_process	GO:0006399	tRNA metabolic process	0.8	1	tRNA maturation and modification.
+core_process	GO:0000154	rRNA modification	0.8	1	
+core_process	GO:0042254	ribosome biogenesis	1.0	1	
+core_process	GO:0003735	structural constituent of ribosome	1.0	1	
+core_process	GO:0006260	DNA replication	1.0	1	
+core_process	GO:0071897	DNA biosynthetic process	0.8	1	
+core_process	GO:0006351	DNA-templated transcription	1.0	1	Core RNA polymerase and general factors.
+core_process	GO:0051301	cell division	1.0	1	
+core_process	GO:0009252	peptidoglycan biosynthetic process	1.0	1	
+core_process	GO:0009245	lipid A biosynthetic process	1.0	1	Lipid A is essential in Enterobacterales, unlike O-antigen.
+core_process	GO:0006633	fatty acid biosynthetic process	1.0	1	
+core_process	GO:0009165	nucleotide biosynthetic process	0.8	1	
+core_process	GO:0006164	purine nucleotide biosynthetic process	0.8	1	
+core_process	GO:0006221	pyrimidine nucleotide biosynthetic process	0.8	1	
+core_process	GO:0008652	amino acid biosynthetic process	0.8	1	
+core_process	GO:0006096	glycolysis	0.8	1	
+core_process	GO:0006099	tricarboxylic acid cycle	0.8	1	
+core_process	GO:0015986	proton motive force-driven ATP synthesis	1.0	1	ATP synthase complex.
+core_process	GO:0006457	protein folding	0.8	1	General chaperones.

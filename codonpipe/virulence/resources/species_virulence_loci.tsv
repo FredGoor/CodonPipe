@@ -1,0 +1,142 @@
+# CodonPipe virulence discovery - species-specific acquired virulence loci
+# ============================================================================
+# WHAT THIS TABLE IS
+# Some clinically important species are covered poorly by the pan-bacterial
+# curated databases that evidence layers E1-E2 draw on, because their defining
+# virulence determinants are ACQUIRED LOCI carried on mobile elements rather
+# than individually characterised proteins of a reference proteome. For
+# Klebsiella pneumoniae HS11286 (GCF_000240185.1), for example, the RefSeq
+# annotation assigns no gene symbols at all - every 'gene' field repeats the
+# locus tag - so symbol-based matching cannot work and the product name is the
+# only annotation signal available.
+#
+# This table encodes such loci as explicit, citable definitions: the
+# constituent gene symbols, regular expressions that match the RefSeq product
+# names those genes actually carry, and how many distinct matching genes must
+# be found, co-located on one replicon, before the locus is called present.
+# codonpipe.virulence.species_loci applies it through the existing identifier
+# crosswalk (GeneTable.lookup) and the existing operon/island machinery
+# (codonpipe.virulence.context.extend_by_context).
+#
+# WHAT THIS IS NOT
+# The Klebsiella rows reproduce the LOCUS DEFINITIONS and the VIRULENCE-SCORE
+# RULE published for Kleborate (Lam et al. 2021, Nat Commun 12:4188). They are
+# applied here by ANNOTATION MATCHING ONLY. This is not the Kleborate program
+# and is not equivalent to running it:
+#   * no sequence-identity or coverage scoring against the Kleborate allele
+#     databases, so no ybST / cbST / AbST / SmST lineage assignment;
+#   * no MLST;
+#   * no Kaptive K-locus or O-locus typing;
+#   * no minimap2, mash or BLAST dependency of any kind;
+#   * a locus is called from the presence of annotated genes, so a genome whose
+#     annotation is sparse, or which carries a pseudogenised or truncated
+#     locus, can be called differently from how Kleborate would call it.
+# Scores produced from this table must therefore be described as
+# "Kleborate-style", never as Kleborate output.
+#
+# COLUMN DEFINITIONS
+# scope_type            How scope_value is matched against the resolved target
+#                       (codonpipe.virulence.resolve.TargetInfo):
+#                         tax_id          exact TargetInfo.tax_id
+#                         species_tax_id  TargetInfo.species_tax_id
+#                         genus_tax_id    TargetInfo.genus_tax_id
+#                         lineage_name    case-insensitive exact match against
+#                                         any entry of TargetInfo.lineage_names
+#                       A row whose scope does not match the target is never
+#                       evaluated, so the layer is a strict no-op outside the
+#                       configured scopes.
+# scope_value           The taxid or lineage name to match.
+# locus                 Short locus key, unique within one scope.
+# locus_label           Human-readable name used in reports.
+# score_scheme          Name of the scoring rule that consumes this locus; see
+#                       SCORE_SCHEMES in species_loci.py. Empty = the locus is
+#                       detected and reported but feeds no score.
+# score_token           Token this locus contributes to that scoring rule.
+# counts_toward_score   1 = presence of this locus changes the score;
+#                       0 = detected and reported, but does not change it.
+# gene_symbols          Comma-separated constituent gene symbols, matched
+#                       through GeneTable.lookup and against the 'gene' field.
+#                       Useful for genomes that do carry gene symbols; inert
+#                       for genomes that do not.
+# product_patterns      Python regular expression, applied with re.search to
+#                       the RefSeq product name. Several alternatives are
+#                       separated by '|' in the usual way.
+#                       CASE SENSITIVITY IS DELIBERATE AND LOAD-BEARING.
+#                       Patterns are compiled WITHOUT re.IGNORECASE when
+#                       case_sensitive = 1, and sub-expressions that should
+#                       ignore case are wrapped in Python's scoped inline flag
+#                       (?i:...). The reason: the salmochelin receptor gene
+#                       iroN matched case-insensitively as \biro[BCDEN]\b also
+#                       matches the ordinary English word "iron", which occurs
+#                       in dozens of unrelated iron-transport product names and
+#                       would fabricate a salmochelin locus in almost any
+#                       genome. Written case-sensitively as \b[Ii]ro[BCDEN]\b
+#                       it matches IroE/iroB/iroN and not "iron".
+# case_sensitive        1 = compile product_patterns case-sensitively (default,
+#                       recommended); 0 = add re.IGNORECASE to the whole
+#                       pattern.
+# expected_gene_count   Number of genes in the complete published locus. Used
+#                       as the denominator of the reported annotation
+#                       completeness, nothing else.
+# min_markers           Minimum number of DISTINCT genes matching this locus,
+#                       co-located on one replicon, required to call the locus
+#                       present. This is the guard against single spurious
+#                       annotation hits: HS11286 carries one gene annotated
+#                       "esterase_lipase family protein IroE" with no other iro
+#                       gene anywhere, and min_markers = 3 correctly declines to
+#                       call salmochelin from it.
+# max_gene_gap          Maximum number of intervening genes tolerated between
+#                       consecutive marker genes of one cluster.
+# extend_locus          1 = recruit the remaining members of an accepted
+#                       cluster through context.extend_by_context, so that
+#                       locus genes whose RefSeq product name is generic
+#                       (HS11286 annotates ybtX as "MFS superfamily transporter
+#                       signal transducer" and ybtA as "AraC-type
+#                       transcriptional regulator") are not lost. Recruitment
+#                       is clamped to the span of the accepted cluster.
+# machinery             Machinery class, using the vocabulary of
+#                       virulence_vocabulary.tsv (dedicated / dual_use /
+#                       regulatory / unclassified). Siderophore loci are
+#                       dual_use: iron piracy operates in the host but also in
+#                       iron-poor environments outside it. Colibactin is a
+#                       DNA-alkylating genotoxin with no known function outside
+#                       a eukaryotic host, so dedicated. The rmp capsule
+#                       up-regulators are dual_use: capsule serves
+#                       immune evasion and also desiccation and phage defence.
+# axis_hint             host_interaction or virulence_general; feeds the
+#                       host-interaction axis used by the strict tier.
+# weight                Evidence-score contribution of a marker gene of this
+#                       locus. Recruited (non-marker) locus members receive
+#                       ScoringParams.w_species_locus_context instead.
+# reference             Publication defining the locus and its membership.
+# note                  Free text.
+#
+# A second, related trap: 'mucoid phenotype' also appears in the product name
+# of rmpA2 ('mucoid phenotype regulator RmpA2'), which is a separate locus row.
+# The rmpADC pattern therefore carries the negative lookahead
+# (?!.{0,40}[Rr]mpA2) on that alternative, so that rmpA2 is counted once, under
+# its own locus, instead of also inflating the rmpADC call.
+#
+# REFERENCES
+# Lam MMC, Wick RR, Watts SC, Cerdeira LT, Wyres KL, Holt KE (2021) A genomic
+#   surveillance framework and genotyping tool for Klebsiella pneumoniae and
+#   its related species complex. Nat Commun 12:4188.
+# Lam MMC, Wick RR, Wyres KL, Gorrie CL, Judd LM, Jenney AWJ, Brisse S,
+#   Holt KE (2018) Genetic diversity, mobilisation and spread of the
+#   yersiniabactin-encoding mobile element ICEKp in Klebsiella pneumoniae
+#   populations. Microb Genom 4:e000196.
+# Lam MMC, Wyres KL, Judd LM, Wick RR, Jenney A, Brisse S, Holt KE (2018)
+#   Tracking key virulence loci encoding aerobactin and salmochelin
+#   siderophore synthesis in Klebsiella pneumoniae. Genome Med 10:77.
+# Walker KA, Miner TA, Palacios M, Trzilova D, Frederick DR, Broberg CA,
+#   Sepulveda VE, Quinn JD, Miller VL (2019) A Klebsiella pneumoniae
+#   regulatory mutant has reduced capsule expression but retains
+#   hypermucoviscosity. mBio 10:e00089-19.
+# ============================================================================
+scope_type	scope_value	locus	locus_label	score_scheme	score_token	counts_toward_score	gene_symbols	product_patterns	case_sensitive	expected_gene_count	min_markers	max_gene_gap	extend_locus	machinery	axis_hint	weight	reference	note
+genus_tax_id	570	ybt	yersiniabactin siderophore (ICEKp)	kleborate_ybt_clb_iuc	ybt	1	ybtS,ybtX,ybtQ,ybtP,ybtA,irp2,irp1,ybtU,ybtT,ybtE,fyuA	(?i:yersiniabactin)|(?i:\birp[1-9]\b)|HMWP[12]|(?i:salicylate synthase)|\bYbt[AEPQSTUX]\b|(?i:pesticin)|\bFyuA\b	1	11	3	6	1	dual_use	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188	Chromosomal, carried on the ICEKp integrative conjugative element. irp1/irp2 are annotated HMWP1/HMWP2 and irp9 as salicylate synthase in many RefSeq records.
+genus_tax_id	570	clb	colibactin genotoxin (pks island, ICEKp10)	kleborate_ybt_clb_iuc	clb	1	clbA,clbB,clbC,clbD,clbE,clbF,clbG,clbH,clbI,clbJ,clbK,clbL,clbM,clbN,clbO,clbP,clbQ,clbR,clbS	(?i:colibactin)|(?i:\bclb[a-s]\b)	1	19	3	6	1	dedicated	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188	DNA-alkylating genotoxin; no known function outside a eukaryotic host, hence dedicated rather than dual_use.
+genus_tax_id	570	iuc	aerobactin siderophore	kleborate_ybt_clb_iuc	iuc	1	iucA,iucB,iucC,iucD,iutA	(?i:aerobactin)|(?i:\biuc[a-d]\b)|(?i:\biutA\b)|(?i:N2-citryl-N6-acetyl-N6-hydroxylysine synthase)|(?i:N6-hydroxylysine O-acetyltransferase)	1	5	3	6	1	dual_use	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188	Usually plasmid-borne (pLVPK-like); the strongest single predictor of the hypervirulent phenotype and weighted three points in the published score.
+genus_tax_id	570	iro	salmochelin siderophore	kleborate_ybt_clb_iuc	iro	0	iroB,iroC,iroD,iroE,iroN	(?i:salmochelin)|\b[Ii]ro[BCDEN]\b	1	5	3	6	1	dual_use	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188	Detected and reported but deliberately NOT scored: Lam et al. exclude iro from the score because its presence is very strongly associated with aerobactin. Pattern is case-sensitive so that iroN does not match the word 'iron'.
+genus_tax_id	570	rmpADC	rmpADC capsule up-regulator (hypermucoidy)	kleborate_ybt_clb_iuc	rmp	0	rmpA,rmpD,rmpC	(?i:mucoid phenotype)(?!.{0,40}[Rr]mpA2)|(?i:hypermucoid)|\b[Rr]mp[ACD]\b	1	3	1	6	1	dual_use	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188; Walker KA et al. (2019) mBio 10:e00089-19	min_markers = 1 because rmpA has a highly specific product name ('regulator of mucoid phenotype A') while rmpD and rmpC are frequently annotated as hypothetical proteins. Not scored, per Lam et al.
+genus_tax_id	570	rmpA2	rmpA2 capsule up-regulator (hypermucoidy)	kleborate_ybt_clb_iuc	rmpA2	0	rmpA2	(?i:\brmpA2\b)	1	1	1	6	0	dual_use	host_interaction	2.0	Lam MMC et al. (2021) Nat Commun 12:4188	A single-gene paralogue of rmpA on the virulence plasmid, frequently truncated by frameshift. Annotation matching cannot see a frameshift, so a call here means 'an rmpA2-annotated gene is present', not 'a functional rmpA2 is present'. Not scored.

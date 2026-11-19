@@ -1,0 +1,127 @@
+# CodonPipe virulence discovery - virulence-factor category axes
+# Vocabulary observed in the VFDB / VICTORS / PATRIC_VF classification field as served by BV-BRC.
+# Compound labels are split on commas and each atomic term is looked up here (case-insensitive).
+# axis  host_interaction  = engages the host directly; Falkow postulate 2 is interpretable
+#       virulence_general = contributes to virulence but is also engaged during growth in vitro
+#       ambiguous         = decided by the independent in-vitro-requirement axis
+#       uninformative     = no functional information; ignored for axis assignment
+#       negative          = explicit absence of virulence evidence; down-weights the gene
+term	axis	note
+adherence	host_interaction	Attachment to host surfaces.
+adhesion	host_interaction	
+fimbrial	host_interaction	
+fimbriae	host_interaction	
+nonfimbrial	host_interaction	
+common pili	host_interaction	
+mscramms	host_interaction	Microbial surface components recognising adhesive matrix molecules.
+autotransporter	host_interaction	
+type ve	host_interaction	Type Ve autotransporter adhesins.
+curli	host_interaction	
+invasion	host_interaction	
+tissue invasion	host_interaction	
+cell-to-cell spread	host_interaction	
+actin-based motility	host_interaction	
+escape from the phagosome	host_interaction	
+intracellular survival and replication	host_interaction	
+intracellular growth	host_interaction	
+survival inside the host derived vacuole	host_interaction	
+inhibition of phagolysosome formation	host_interaction	
+phagosome maturation arrest	host_interaction	
+autophagy evasion	host_interaction	
+anti-apoptosis	host_interaction	
+chromatin remodeling	host_interaction	Effector acting on host chromatin.
+molecular mimicry	host_interaction	
+persistence within the host and transmission	host_interaction	
+effector delivery system	host_interaction	
+secretion system	host_interaction	
+secretion	host_interaction	
+secretion system effectors	host_interaction	
+virulence associated secretion systems	host_interaction	
+type i secretion system	host_interaction	
+type ii secretion system	host_interaction	
+type iii secretion	host_interaction	
+type iii secretion system	host_interaction	
+type iii translocated protein	host_interaction	
+translocon apparatus	host_interaction	
+type iv secretion system	host_interaction	
+type vi secretion system	host_interaction	
+type vii secretion system	host_interaction	
+excretion	host_interaction	
+exotoxin	host_interaction	
+toxin	host_interaction	
+endotoxin	host_interaction	
+enterotoxin	host_interaction	
+cytotoxin	host_interaction	
+intracellular toxin	host_interaction	
+membrane-damaging	host_interaction	
+membrane-acting toxin	host_interaction	
+pore-forming	host_interaction	
+rtx toxin	host_interaction	
+a-b type	host_interaction	
+adp-ribosyltransferase	host_interaction	
+adp-ribosyltransferase and gtpase activating	host_interaction	
+deamidase	host_interaction	
+n-glycosidase	host_interaction	
+adenylate cyclase	host_interaction	
+phospholipase	host_interaction	
+biocomponent leukocidin	host_interaction	
+channel-forming involving beta-sheet-containing toxin (beta-barrel)	host_interaction	
+channel-forming involving alpha-helix-containing toxin	host_interaction	
+thiol-activated cholesterol-binding cytolysin	host_interaction	
+spreading factor	host_interaction	
+plasminogen activator	host_interaction	
+immune modulation	host_interaction	
+immune modulator	host_interaction	
+immune evasion	host_interaction	
+modulate host immune response	host_interaction	
+defense against host immune response	host_interaction	
+avoidance of host defense	host_interaction	
+antiphagocytosis	host_interaction	
+serum resistance	host_interaction	
+capsule	host_interaction	
+resistance to antimicrobial peptides	host_interaction	
+antimicrobial activity/competitive advantage	ambiguous	Covers both bacteriocins (host-niche competition) and multidrug efflux systems; resolved on the in-vitro axis.
+antimicrobial activity	ambiguous	
+biofilm	host_interaction	
+biofilm formation	host_interaction	
+biosurfactant	host_interaction	
+motility	host_interaction	Flagellar and twitching motility are dispensable in standard broth culture.
+cell motility	host_interaction	
+twitching motility	host_interaction	
+cell surface and membrane proteins	host_interaction	
+nutritional/metabolic factor	virulence_general	Metabolic capability; commonly also required in vitro.
+cellular metabolism	virulence_general	
+stress	virulence_general	General stress adaptation is engaged in vitro as well.
+stress survival	virulence_general	
+stress protein	virulence_general	
+acid resistance	virulence_general	
+bile resistance	virulence_general	
+regulation	virulence_general	Global regulators have pleiotropic in vitro phenotypes.
+regulation of gene expression	virulence_general	
+two-component system	virulence_general	
+quorum sensing system	virulence_general	
+chaperone	virulence_general	
+protein folding	virulence_general	
+post-translational modification	virulence_general	
+antibiotics resistance	virulence_general	
+antibiotic resistance	virulence_general	
+drug efflux system	virulence_general	
+cell wall	virulence_general	
+lps (lipopolysaccharide)	ambiguous	Lipid A and core are essential in Enterobacterales, O-antigen is not; resolved on the in vitro axis.
+iron uptake	ambiguous	Metal piracy is host-directed but mutants often show in vitro defects under metal limitation.
+siderophore	ambiguous	
+siderophore receptor	ambiguous	
+heme uptake	ambiguous	
+zinc uptake	ambiguous	
+magnesium uptake	ambiguous	
+exoenzyme	ambiguous	Secreted enzymes are host-facing, intracellular ones are housekeeping.
+protease	ambiguous	
+serine protease	ambiguous	
+cysteine protease	ambiguous	
+zinc metalloproteinase	ambiguous	
+peptidase	ambiguous	
+lipase	ambiguous	
+hydrolase	ambiguous	
+pigment	ambiguous	Pigments such as staphyloxanthin or pyocyanin act against host oxidative defences.
+virulence	uninformative	Generic database label carrying no functional axis information.
+no evidence of virulence	negative	Explicit database statement that virulence evidence is absent.

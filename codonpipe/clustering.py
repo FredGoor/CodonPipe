@@ -2491,6 +2491,31 @@ def _filter_outliers_mean_sd(vals, n_sd=3.0):
     return arr[keep]
 
 
+def _draw_iqr_box(ax, x, vals, width, color):
+    """Median and interquartile range, with no whiskers or outlier marks.
+
+    Preferred over the mean/SD box for codon and tRNA usage because those
+    distributions are heavy-tailed: a standard deviation computed over a few
+    hundred genes is inflated by the tail, so two gene sets whose bulks are
+    well separated still draw overlapping boxes. The quartiles describe the
+    bulk and leave the separation visible; the jittered points behind the box
+    still show the spread the box no longer spans.
+    """
+    vals = np.asarray(vals, dtype=float)
+    vals = vals[np.isfinite(vals)]
+    if vals.size == 0:
+        return
+    q1, med, q3 = (float(v) for v in np.percentile(vals, [25, 50, 75]))
+    height = q3 - q1
+    if not np.isfinite(height) or height <= 0:
+        height = 1e-9
+    ax.add_patch(Rectangle((x - width / 2.0, q1), width, height,
+                           facecolor=color, edgecolor='black', linewidth=0.8,
+                           alpha=0.85, zorder=2))
+    ax.plot([x - width / 2.0, x + width / 2.0], [med, med], color='black',
+            lw=1.0, zorder=3, solid_capstyle='butt')
+
+
 def _draw_mean_sd_box(ax, x, vals, width, color):
     vals = np.asarray(vals, dtype=float)
     vals = vals[np.isfinite(vals)]
@@ -2525,7 +2550,30 @@ def _p_to_stars(p):
     return 'ns'
 
 
-def _compute_two_group_test(a, b, method='Student t-test'):
+def _benjamini_hochberg(pvals):
+    """Benjamini-Hochberg q-values for a family of p-values.
+
+    Returns a list the same length as the input, with nan where the p-value was
+    nan. The figures below run one test per feature and cluster, and one per
+    within-group feature pair and cluster; a figure with twenty features and ten
+    clusters therefore carries a few hundred tests, and a star drawn on the raw
+    p-value is not interpretable at that scale.
+    """
+    idx = [i for i, p in enumerate(pvals) if p is not None and np.isfinite(p)]
+    out = [float("nan")] * len(pvals)
+    if not idx:
+        return out
+    m = len(idx)
+    order = sorted(idx, key=lambda i: pvals[i])
+    running = 1.0
+    for rank, i in enumerate(reversed(order), start=1):
+        q = float(pvals[i]) * m / (m - rank + 1)
+        running = min(running, q)
+        out[i] = min(1.0, running)
+    return out
+
+
+def _compute_two_group_test(a, b, method='Mann-Whitney U'):
     a = np.asarray(a, dtype=float)
     b = np.asarray(b, dtype=float)
     a = a[np.isfinite(a)]
@@ -2537,7 +2585,7 @@ def _compute_two_group_test(a, b, method='Student t-test'):
     if a.size < 1 or b.size < 1:
         return np.nan, np.nan, method_in
     try:
-        if method_l in {'mann-whitney u', 'mann whitney u', 'mann-whitney', 'mann whitney', 'nonparametric', 'non-parametric'}:
+        if method_l in {'mann-whitney u', 'mann whitney u', 'mann-whitney', 'mann whitney', 'nonparametric', 'non-parametric', 'default'}:
             if a.size < 1 or b.size < 1:
                 return np.nan, np.nan, 'Mann-Whitney U'
             stat, pval = mannwhitneyu(a, b, alternative='two-sided')
@@ -2624,8 +2672,8 @@ def _plot_cluster_feature_boxplots(
         'modification': 'trna_modifications',
     }.get(plot_key, 'trna_shift')
     style = str(SET.get(f'{key_prefix}_boxplot_style', SET.get(f'{key_prefix}_plot_kind', 'boxplot')) or 'boxplot').strip().lower()
-    if style not in {'boxplot', 'violin'}:
-        style = 'boxplot'
+    if style not in {'boxplot', 'violin', 'iqr'}:
+        style = 'iqr'
     use_log2 = _setting_bool(SET, f'{key_prefix}_boxplot_log2', True)
     exclude_outliers = _setting_bool(SET, f'{key_prefix}_exclude_outliers', False)
     outlier_sd = float(SET.get(f'{key_prefix}_outlier_sd', 3.0) or 3.0)
@@ -2783,6 +2831,9 @@ def _plot_cluster_feature_boxplots(
                 ax.plot([pos_i - box_width / 2.0, pos_i + box_width / 2.0], [mean, mean], color='black', lw=1.0, zorder=4)
                 if vals.size > 1 and np.isfinite(sd):
                     ax.plot([pos_i, pos_i], [mean - sd, mean + sd], color='black', lw=0.8, zorder=4)
+        elif style == 'iqr':
+            for pos_i, vals in zip(positions, data):
+                _draw_iqr_box(ax, pos_i, vals, box_width, color)
         else:
             for pos_i, vals in zip(positions, data):
                 _draw_mean_sd_box(ax, pos_i, vals, box_width, color)
@@ -3663,9 +3714,9 @@ def render_trna_gene_ordered_heatmaps(SET, count_df: pd.DataFrame, ordered_genes
 
         if codon_rows:
             chosen = list(available_clusters)
-            plot_kind = str(SET.get('trna_wobble_plot_kind', 'boxplot') or 'boxplot').strip().lower()
+            plot_kind = str(SET.get('trna_wobble_plot_kind', 'iqr') or 'iqr').strip().lower()
             zcu_manual_only = zcu_df.loc[:, codon_rows].copy()
-            if plot_kind in {'boxplot', 'violin'}:
+            if plot_kind in {'boxplot', 'violin', 'iqr'}:
                 secondary = _genome_codon_frequency_percent(count_df, codon_rows)
                 out_path = os.path.join(output_dir, f'Plot 4 - enrichment in wobble decoding within clusters {plot_kind}s.png')
                 saved = _plot_cluster_feature_boxplots(
@@ -3743,9 +3794,9 @@ def render_trna_gene_ordered_heatmaps(SET, count_df: pd.DataFrame, ordered_genes
                 }
         if trna_rows:
             chosen = list(available_clusters)
-            plot_kind = str(SET.get('trna_shift_plot_kind', 'boxplot') or 'boxplot').strip().lower()
+            plot_kind = str(SET.get('trna_shift_plot_kind', 'iqr') or 'iqr').strip().lower()
             ztu_selected = ztu_df.loc[:, trna_rows].copy()
-            if plot_kind in {'boxplot', 'violin'}:
+            if plot_kind in {'boxplot', 'violin', 'iqr'}:
                 abundance = trna_rules.get('abundance_series')
                 abundance_std = trna_rules.get('abundance_std_series')
                 if abundance is not None:
@@ -3825,7 +3876,7 @@ def render_trna_gene_ordered_heatmaps(SET, count_df: pd.DataFrame, ordered_genes
             print(f"[INFO] Plot 6: restricting calculation to amino acid(s): {', '.join(selected_mod_aas)}.")
         else:
             print('[INFO] Plot 6: using default amino-acid set: ' + ', '.join(PLOT6_DEFAULT_AAS) + '.')
-        plot_kind = str(SET.get('trna_modifications_plot_kind', 'boxplot') or 'boxplot').strip().lower()
+        plot_kind = str(SET.get('trna_modifications_plot_kind', 'iqr') or 'iqr').strip().lower()
         mode_label = 'tRNA modification enzymes' if feature_mode in {'enzyme', 'enzymes', 'trme', 'trmes'} else 'tRNA modifications'
         model_display = {
             'conservative': 'conservative decoder model',
@@ -3922,7 +3973,7 @@ def render_trna_gene_ordered_heatmaps(SET, count_df: pd.DataFrame, ordered_genes
                 mod_label_map = dict(shared_label_map)
                 disp_model = model_display.get(assignment_model, assignment_model)
                 suffix = model_suffix.get(assignment_model, assignment_model)
-                if plot_kind in {'boxplot', 'violin'}:
+                if plot_kind in {'boxplot', 'violin', 'iqr'}:
                     out_path = os.path.join(plot6_output_dir, f'Plot 6 - {mode_label} shift within clusters - {suffix} {plot_kind}s.png')
                     saved = _plot_cluster_feature_boxplots(
                         SET,
@@ -4141,7 +4192,7 @@ def run_codon_clustering(SET):
     fasta_codon_range = str(SET.get("fasta_codon_range", "all") or "all").strip() or "all"
     freq_df, geneids_df, abs_df, gc_pct = compute_codon_usage_tables_from_cds_fasta(
         fasta_path=fasta_path_for_input,
-        row_id_mode=str(SET.get("fasta_row_id_mode", "primary")),
+        row_id_mode=str(SET.get("fasta_row_id_mode", "auto")),
         trim_to_multiple_of_3=bool(SET.get("fasta_trim_to_multiple_of_3", True)),
         include_stops=bool(SET.get("fasta_include_stops", include_stops_default)),
         keep_first_duplicate=True,

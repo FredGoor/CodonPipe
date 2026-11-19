@@ -168,6 +168,30 @@ def build_meta_table(SET, PIPELINE, clustering_results,
 
     for k in ("usage_basis", "codon_set", "fasta_codon_range"):
         add({"Category": "Usage", "Key": k, "Value": SET.get(k)})
+
+    # Which codons counted as starvation-sensitive / -insensitive. Percentages
+    # computed under different definitions are not comparable, so the workbook
+    # has to state the one it was produced with.
+    try:
+        from codonpipe import codon_sensitivity as _cs
+        _definition = _cs.active_definition()
+        add({"Category": "Usage", "Key": "codon_sensitivity_definition", "Value": _definition.key})
+        add({"Category": "Usage", "Key": "insensitive codons",
+             "Value": " ".join(_definition.metric_insensitive)})
+        add({"Category": "Usage", "Key": "sensitive codons",
+             "Value": " ".join(_definition.metric_sensitive)})
+    except Exception:
+        pass
+
+    # Embedding and clustering parameters, so a figure can be reproduced from
+    # the workbook alone.
+    for k in ("dimred_method", "cluster_method", "umap_neighbors", "umap_min_dist",
+              "umap_metric", "umap_components", "tsne_perplexity", "tsne_dims",
+              "tsne_distance", "umap_randomize", "n_clusters"):
+        if SET.get(k) not in (None, ""):
+            add({"Category": "Embedding", "Key": k, "Value": SET.get(k)})
+    add({"Category": "Embedding", "Key": "random_state",
+         "Value": "none (randomised)" if SET.get("umap_randomize", False) else 0})
     if clustering_results.get("fasta_codon_range_label"):
         add({"Category": "Usage", "Key": "fasta_codon_range_label", "Value": clustering_results.get("fasta_codon_range_label")})
     if clustering_results.get("fasta_codon_range_empty_genes") is not None:
@@ -1147,8 +1171,8 @@ def _canonicalize_plot6_modification_feature_label(feature):
     if not s:
         return ""
     key = _feature_key_ascii(s)
-    # The biologically relevant grouped feature for this pathway in Fred's Plot 6
-    # is ct6A37.  Older/alternative labels in the decoding workbook should not
+    # The biologically relevant grouped feature for this pathway in the tRNA-
+    # modification plot is ct6A37.  Older/alternative labels in the decoding workbook should not
     # create separate x-axis categories.
     if key in {"m6t6a37", "t6a37", "ct6a37"}:
         return "ct6A37"

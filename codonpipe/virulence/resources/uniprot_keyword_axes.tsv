@@ -1,0 +1,43 @@
+# CodonPipe virulence discovery - UniProtKB keyword axes
+# Matching is on keyword identifier, so renaming a keyword upstream cannot break it.
+axis	keyword_id	keyword_name	weight	note
+host_interaction	KW-0843	Virulence	1.0	Curated virulence annotation.
+host_interaction	KW-0800	Toxin	1.0	Toxin.
+host_interaction	KW-1061	Dermonecrotic toxin	1.0	Dermonecrotic toxin.
+host_interaction	KW-0964	Secreted	0.6	Secreted.
+host_interaction	KW-1032	Host cell membrane	1.0	Host cell membrane.
+host_interaction	KW-1035	Host cytoplasm	1.0	Host cytoplasm.
+host_interaction	KW-1043	Host membrane	1.0	Host membrane.
+host_interaction	KW-1048	Host nucleus	1.0	Host nucleus.
+host_interaction	KW-0281	Fimbrium	0.9	Fimbrium.
+host_interaction	KW-0282	Flagellum	0.6	Flagellum.
+host_interaction	KW-0145	Chemotaxis	0.5	Chemotaxis.
+host_interaction	KW-0204	Cytolysis	0.9	Cytolysis.
+host_interaction	KW-0354	Hemolysis	0.9	Haemolysis.
+host_interaction	KW-0972	Capsule biogenesis/degradation	0.7	Capsule.
+core_process	KW-0998	Cell outer membrane	0.2	Moved off the host axis: a bacterial compartment, not a host interface.
+core_process	KW-0134	Cell wall	0.2	Moved off the host axis: a bacterial compartment, not a host interface.
+core_process	KW-0648	Protein biosynthesis	1.0	Protein biosynthesis.
+core_process	KW-0689	Ribosomal protein	1.0	Ribosomal protein.
+core_process	KW-0030	Aminoacyl-tRNA synthetase	1.0	Aminoacyl-tRNA synthetase.
+core_process	KW-0820	tRNA-binding	0.6	tRNA-binding.
+core_process	KW-0699	rRNA-binding	0.6	rRNA-binding.
+core_process	KW-0819	tRNA processing	0.6	tRNA processing.
+core_process	KW-0235	DNA replication	1.0	DNA replication.
+core_process	KW-0804	Transcription	0.6	Transcription.
+core_process	KW-0131	Cell cycle	0.8	Cell cycle.
+core_process	KW-0132	Cell division	1.0	Cell division.
+core_process	KW-0717	Septation	0.8	Septation.
+core_process	KW-0275	Fatty acid biosynthesis	0.8	Fatty acid biosynthesis.
+core_process	KW-0444	Lipid biosynthesis	0.6	Lipid biosynthesis.
+core_process	KW-0658	Purine biosynthesis	0.8	Purine biosynthesis.
+core_process	KW-0665	Pyrimidine biosynthesis	0.8	Pyrimidine biosynthesis.
+core_process	KW-0028	Amino-acid biosynthesis	0.7	Amino-acid biosynthesis.
+core_process	KW-0324	Glycolysis	0.8	Glycolysis.
+core_process	KW-0816	Tricarboxylic acid cycle	0.8	TCA cycle.
+core_process	KW-0138	CF(0)	1.0	ATP synthase CF(0).
+core_process	KW-0139	CF(1)	1.0	ATP synthase CF(1).
+core_process	KW-0143	Chaperone	0.7	Chaperone.
+core_process	KW-0697	Rotamase	0.5	Rotamase.
+core_process	KW-0573	Peptidoglycan synthesis	1.0	Peptidoglycan synthesis.
+core_process	KW-0961	Cell wall biogenesis/degradation	0.5	Cell wall biogenesis/degradation.

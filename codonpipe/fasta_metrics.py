@@ -542,14 +542,20 @@ def compute_codon_usage_tables_from_cds_fasta(
 # -----------------------------
 # Codon group metrics
 # -----------------------------
+from codonpipe import codon_sensitivity as _codon_sensitivity
+
+_ACTIVE_CODON_DEFINITION = _codon_sensitivity.active_definition()
+
+#: The "sensitive" and "insensitive" members are not literals: they come from
+#: the codon definition selected in codonpipe.codon_sensitivity, so that one
+#: switch moves every part of the pipeline at once. Selecting a definition at
+#: runtime calls apply_codon_definition() below, which rewrites them in place.
+#: The remaining groups (MiaA, MnmEG, Tgt, regulatory, regbis) describe
+#: tRNA-modification dependence rather than starvation sensitivity and are
+#: unaffected by the choice.
 CODON_GROUPS = {
-    "sensitive": {
-        "ACC", "ATC", "CCG", "ATT", "CTC", "GGC", "CTA", "CCA",
-        "CGC", "CGA", "CGT", "GCC", "GTC", "CTT", "TCC", "CAA", "GTG", "GGT"
-    },
-    "insensitive": {
-        "AGA", "AGG", "CGG", "GGA", "GGG", "ATA", "TTA", "TTG", "AGC", "AGT", "TCG", "ACG"
-    },
+    "sensitive": set(_ACTIVE_CODON_DEFINITION.metric_sensitive),
+    "insensitive": set(_ACTIVE_CODON_DEFINITION.metric_insensitive),
     "MiaA": {
         "TGC", "TGT", "TTA", "TTG", "TTC", "TTT", "TCC", "TCT", "TCA", "TCG",
         "TGG", "TAC", "TAT"
@@ -711,11 +717,27 @@ def perc_threshold_flags(pcts):
 
 
 FASTA_METRIC_GROUP_DEFAULTS = {
+    # Standing cluster: selected by default in the GUI, so every genome gets an
+    # "Insensitive genes" column without the user configuring anything. The
+    # codon list follows the active codon definition, so switching definition
+    # re-derives the cluster.
+    #
+    # The rule is the top decile of the genome, not a fixed percentage. A fixed
+    # percentage does not transfer: on S. Typhimurium SL1344 the historical 17%
+    # cutoff admits 4,456 of 4,868 genes (91.5%) under the legacy codon set and
+    # 3,333 (68.5%) under the custom set, so it describes the genome rather than
+    # selecting from it. The top decile was screened against virulence tier 3 at
+    # cut-offs from 1% to 20% on SL1344 and E. coli O157:H7 Sakai with the custom
+    # codon set: it recovers 46 of 117 and 23 of 58 tier-3 genes at 3.9-fold
+    # enrichment, on a Jaccard plateau that runs from about 5% to 13%. No
+    # ribosomal gene enters the cluster at any cut-off in that range in either
+    # genome.
     "insensitive": {
         "label": "Insensitive genes",
         "metric_type": "codon_group",
         "codons": sorted(CODON_GROUPS["insensitive"]),
-        "mode": "bins",
+        "mode": "top_percent",
+        "top_percent": 10.0,
         "cutoff": 17.0,
         "top_n": 100,
         "direction": "high",
@@ -768,6 +790,34 @@ FASTA_METRIC_GROUP_DEFAULTS = {
 }
 
 
+def apply_codon_definition(definition):
+    """Point the sensitive/insensitive metrics at a different codon definition.
+
+    ``definition`` is a key understood by
+    :func:`codonpipe.codon_sensitivity.get_definition`, or a CodonDefinition.
+    Rewrites CODON_GROUPS and FASTA_METRIC_GROUP_DEFAULTS in place so modules
+    that imported either object earlier follow the change.
+
+    Returns the CodonDefinition now in force.
+    """
+    global _ACTIVE_CODON_DEFINITION
+    if not hasattr(definition, "metric_insensitive"):
+        definition = _codon_sensitivity.get_definition(definition)
+    _ACTIVE_CODON_DEFINITION = definition
+
+    CODON_GROUPS["insensitive"] = set(definition.metric_insensitive)
+    CODON_GROUPS["sensitive"] = set(definition.metric_sensitive)
+    if "insensitive" in FASTA_METRIC_GROUP_DEFAULTS:
+        FASTA_METRIC_GROUP_DEFAULTS["insensitive"]["codons"] = sorted(
+            definition.metric_insensitive)
+    return definition
+
+
+def active_codon_definition():
+    """The CodonDefinition currently behind perc_sensitive/perc_insensitive."""
+    return _ACTIVE_CODON_DEFINITION
+
+
 def get_fasta_metric_group_defaults():
     """Return copy-safe default definitions for GUI/pipeline metric clusters."""
     out = {}
@@ -789,7 +839,7 @@ def _metric_config_with_defaults(config):
     merged["label"] = str(merged.get("label") or merged.get("key") or "Metric group").strip()
     merged["metric_type"] = str(merged.get("metric_type") or "codon_group").strip()
     merged["mode"] = str(merged.get("mode") or "bins").strip().lower().replace(" ", "_")
-    if merged["mode"] not in {"bins", "top_hits"}:
+    if merged["mode"] not in {"bins", "top_hits", "top_percent"}:
         merged["mode"] = "bins"
     merged["direction"] = str(merged.get("direction") or "high").strip().lower()
     try:
@@ -800,6 +850,10 @@ def _metric_config_with_defaults(config):
         merged["top_n"] = max(1, int(float(merged.get("top_n", 100))))
     except Exception:
         merged["top_n"] = 100
+    try:
+        merged["top_percent"] = min(100.0, max(0.0, float(merged.get("top_percent", 10.0))))
+    except Exception:
+        merged["top_percent"] = 10.0
     merged["codons"] = _normalize_codon_set(merged.get("codons", []))
     return merged
 
@@ -835,7 +889,7 @@ def score_sequence_for_metric(seq, config):
 def build_fasta_metric_cluster_df(
     fasta_path: str,
     metric_configs,
-    row_id_mode: str = "primary",
+    row_id_mode: str = "auto",
     trim_to_multiple_of_3: bool = True,
     organism_mode: str = "prokaryote",
     codon_range="all",
@@ -845,7 +899,10 @@ def build_fasta_metric_cluster_df(
     ``mode='bins'`` uses the metric cutoff. For high-direction metrics, genes with
     score >= cutoff are retained; for low-direction metrics, score <= cutoff is
     retained. ``mode='top_hits'`` keeps the top N genes by score (or lowest N for
-    low-direction metrics).
+    low-direction metrics). ``mode='top_percent'`` keeps the top ``top_percent``
+    per cent of scored genes, which is the only one of the three that transfers
+    between genomes unchanged: a fixed cutoff selects a different fraction of
+    every genome, and a fixed N a different fraction of every genome size.
     """
     configs = [_metric_config_with_defaults(c) for c in list(metric_configs or [])]
     configs = [c for c in configs if c.get("label")]
@@ -886,9 +943,14 @@ def build_fasta_metric_cluster_df(
         valid = scores_df.loc[series.notna(), ["LocusTag", label]].copy()
         valid[label] = pd.to_numeric(valid[label], errors="coerce")
         direction = str(cfg.get("direction", "high")).lower()
-        if cfg.get("mode") == "top_hits":
+        if cfg.get("mode") in ("top_hits", "top_percent"):
             ascending = direction == "low"
-            chosen = valid.sort_values(label, ascending=ascending).head(int(cfg.get("top_n", 100)))["LocusTag"].tolist()
+            if cfg.get("mode") == "top_percent":
+                pct = min(100.0, max(0.0, float(cfg.get("top_percent", 10.0))))
+                keep = max(1, int(round(len(valid) * pct / 100.0))) if len(valid) else 0
+            else:
+                keep = int(cfg.get("top_n", 100))
+            chosen = valid.sort_values(label, ascending=ascending).head(keep)["LocusTag"].tolist()
         else:
             cutoff = float(cfg.get("cutoff", 0.0))
             if direction == "low":
