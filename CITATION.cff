@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the paper below."
+title: CodonPipe
+abstract: >-
+  Analysis of synonymous codon usage and tRNA decoding across bacterial genomes,
+  with clustering of genes by codon-usage landscape and discovery of
+  virulence-gene sets.
+type: software
+authors:
+  - family-names: Goormaghtigh
+    given-names: Frederic
+    affiliation: Universite Libre de Bruxelles
+  - family-names: Bumann
+    given-names: Dirk
+    affiliation: Biozentrum, University of Basel
+license: MIT
+repository-code: "FILL IN: repository URL"
+version: "FILL IN before release, e.g. 1.2.0"
+date-released: "FILL IN: YYYY-MM-DD"
+preferred-citation:
+  type: article
+  title: >-
+    Stress-adapted codon usage enables efficient virulence-gene expression in
+    Salmonella
+  authors:
+    - family-names: Goormaghtigh
+      given-names: Frederic
+    - family-names: Bumann
+      given-names: Dirk
+  journal: Nucleic Acids Research
+  year: FILL IN
+  doi: "FILL IN on acceptance"

@@ -1,0 +1,16 @@
+# Required
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+matplotlib>=3.7
+scikit-learn>=1.3
+openpyxl>=3.1
+
+# Optional - see README. Each is imported defensively.
+umap-learn>=0.5
+astroML>=1.0
+suds-community>=1.1
+certifi
+requests>=2.31
+# scikit-learn-extra: k-medoids only; unmaintained, fails against recent
+# scikit-learn. Install deliberately if you need that clustering method.

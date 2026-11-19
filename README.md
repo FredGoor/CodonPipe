@@ -1,111 +1,111 @@
-[README_CodonPipe.md](https://github.com/user-attachments/files/28458073/README_CodonPipe.md)
 # CodonPipe
 
-**CodonPipe** is a Python GUI pipeline for genome-wide analysis of bacterial codon usage, gene clustering, and tRNA decoding strategies. It was designed to explore how codon usage varies across bacterial genomes and how these patterns relate to functional gene groups, wobble decoding, and tRNA modification-dependent decoding.
+CodonPipe measures synonymous codon usage and tRNA decoding across a bacterial
+genome, groups genes by the codon-usage landscape they occupy, and tests whether
+a gene set — a functional category, a genomic island, a set of virulence genes —
+uses the genetic code differently from the rest of the genome.
 
-## Main features
-
-- Import coding-sequence FASTA files and compute per-gene codon usage.
-- Analyze codon usage using absolute codon usage (ACU), relative codon usage (RCU), or amino-acid usage.
-- Perform dimensionality reduction using UMAP, t-SNE, or PCA.
-- Cluster genes using k-means, k-medoids, hierarchical clustering, DBSCAN, or spectral clustering.
-- Generate publication-ready figures, including:
-  - genome-wide codon-usage heatmaps,
-  - 2D embedded gene-density plots,
-  - cluster-specific codon-usage plots,
-  - gene-cluster localization heatmaps,
-  - tRNA decoding and wobble-decoding enrichment heatmaps.
-- Export structured Excel workbooks containing reordered genes, cluster assignments, codon-usage tables, and tRNA-decoding summaries.
-- Optional DAVID functional enrichment integration for sliding-window analyses.
-
-## Repository structure
-
-```text
-CodonPipe_GUI.py          Main graphical interface
-Clustering_Pipeline.py    Main analysis pipeline
-Plotting_Pipeline.py      Standalone plotting pipeline
-codonpipe/                Core modules used by the pipeline
-```
-
-Core modules include codon counting, clustering, Excel output generation, density plotting, 2D KS testing, gene-cluster heatmaps, tRNA decoding analyses, and DAVID enrichment utilities.
+It is a desktop application with a Tk interface, plus two scripts that run the
+same pipeline without one.
 
 ## Installation
 
-Create and activate a conda environment:
+Python 3.10 or newer.
 
-```bash
-conda create -n codonpipe python=3.10
-conda activate codonpipe
+```
+git clone <repository-url>
+cd CodonPipe
+pip install -r requirements.txt
+python "Preloaded genomes/fetch_genomes.py"   # retrieves the reference genomes
 ```
 
-Install the required packages:
+## Running
 
-```bash
-pip install numpy pandas scipy matplotlib scikit-learn umap-learn openpyxl xlsxwriter
+```
+python CodonPipe_GUI.py            # interface: load a genome, cluster, plot
+python Clustering_Pipeline.py      # clustering and workbook export, no interface
+python Plotting_Pipeline.py        # figures from an existing clustering workbook
 ```
 
-Optional packages:
+A run takes a coding-sequence FASTA and, optionally, a cluster workbook listing
+gene sets as columns of locus tags. It writes one Excel workbook holding the
+codon table, the gene order, the cluster membership, the per-gene metrics and a
+`Meta` sheet recording the parameters the run used, together with the figures.
 
-```bash
-pip install scikit-learn-extra suds-py3
+## What it computes
+
+- **Codon usage per gene**, as relative synonymous codon usage or as a
+  percentage within selected amino-acid families. Group percentages are
+  normalised by the synonymous families the selected codons span, never by all
+  codons, so amino-acid composition cannot enter the measurement.
+- **A codon-usage landscape**: a 2-D embedding (UMAP, t-SNE or PCA) of the
+  standardised per-gene codon usage, clustered, and projected onto a genome axis.
+- **Cluster statistics**: enrichment of each cluster along the genome axis
+  against a permutation null, and comparisons of codon or tRNA-decoding values
+  between clusters.
+- **Starvation-sensitive and -insensitive codon usage**, under a choice of
+  published definitions (`codonpipe/codon_sensitivity.py`). Percentages computed
+  under different definitions are not comparable; the active definition is
+  recorded in the `Meta` sheet of every workbook.
+- **tRNA decoding**: wobble pairing, isoacceptor shift and modification-dependent
+  codon groups, from a user-supplied decoding table.
+- **Virulence-gene discovery** (`codonpipe/virulence/`): an optional add-on that
+  assembles a virulence-gene set for a species from curated databases and
+  published genome-wide screens, and reports it as four tiers of decreasing
+  permissiveness.
+
+## Statistics
+
+Comparisons between two gene sets use the Mann-Whitney U test by default; the
+distributions are heavy-tailed and the groups differ in size, so a rank test is
+the appropriate default. Student's and Welch's t-tests remain selectable.
+Genome-axis enrichment uses a permutation null with the add-one estimator,
+`(#{null >= observed} + 1) / (permutations + 1)`, so a p-value is never reported
+as zero.
+
+## Reference genomes
+
+`Preloaded genomes/genomes.tsv` lists each genome with its INSDC accessions and
+CDS count; `fetch_genomes.py` downloads them. The files are not kept in the
+repository because they total roughly 230 MB. NCBI re-annotates genomes over
+time, so a freshly downloaded file may contain slightly more or fewer coding
+sequences than the manifest records; the downloader reports the difference.
+One genome, *Chrysiobacterium nematophagum*, is an in-house assembly with no
+public accession and is shipped with the repository.
+
+## Dependencies
+
+Required: numpy, pandas, scipy, matplotlib, scikit-learn, openpyxl.
+
+Optional, imported defensively so the rest of the application runs without them:
+
+| package | enables |
+| --- | --- |
+| umap-learn | UMAP embedding (t-SNE and PCA are built in) |
+| scikit-learn-extra | k-medoids clustering |
+| astroML | the two-dimensional Kolmogorov-Smirnov test |
+| suds-community, certifi | DAVID functional-annotation queries |
+| requests | the virulence add-on's database lookups |
+
+`scikit-learn-extra` is no longer maintained and does not build against recent
+scikit-learn releases. Leave it out unless you need k-medoids; every other
+clustering method works without it.
+
+## Repository layout
+
 ```
-
-`scikit-learn-extra` enables k-medoids clustering. `suds-py3` is only required for DAVID web-service analyses.
-
-## Running CodonPipe
-
-From the repository folder, launch the graphical interface:
-
-```bash
-python CodonPipe_GUI.py
+CodonPipe_GUI.py          interface
+Clustering_Pipeline.py    clustering and workbook export
+Plotting_Pipeline.py      figures from an existing workbook
+codonpipe/                library: codon metrics, clustering, plots, exports
+codonpipe/virulence/      virulence-gene discovery add-on
+Preloaded genomes/        genome manifest, downloader, cluster workbooks
 ```
-
-The GUI allows the user to select input files, analysis parameters, clustering options, tRNA-decoding settings, and figure-export options.
-
-## Input files
-
-The minimal input is a coding-sequence FASTA file containing bacterial CDS sequences.
-
-Optional inputs include:
-
-- a user-defined gene-cluster file in Excel, CSV, TSV, or TXT format;
-- a tRNA decoding table defining codon-to-tRNA decoding relationships;
-- a DAVID gene-to-term file for functional enrichment analyses;
-- a tRNA abundance table for abundance-correlation analyses.
-
-## Main outputs
-
-CodonPipe writes a structured output folder containing:
-
-- `Clustering analysis results.xlsx` — main workbook with reordered genes, coordinates, binary cluster membership, and metadata;
-- `Gene lists per cluster.xlsx` — gene lists and annotations for each cluster;
-- `Codon usage tables per cluster.xlsx` — per-cluster codon-usage summaries;
-- `Gene IDs.xlsx` — parsed gene identifiers and annotations;
-- `Figures/` — exported heatmaps, density plots, and cluster-level figures;
-- `Methods/` — automatically generated methods and figure-legend text files;
-- optional DAVID enrichment outputs.
-
-## Typical workflow
-
-1. Launch `CodonPipe_GUI.py`.
-2. Select a CDS FASTA file.
-3. Choose the codon-usage metric: ACU, RCU, or amino-acid usage.
-4. Select a dimensionality-reduction method and clustering method.
-5. Optionally provide gene clusters or tRNA decoding tables.
-6. Run the analysis.
-7. Inspect the exported Excel files and figures.
-
-## Notes
-
-- CodonPipe was developed for bacterial CDS datasets.
-- Relative codon usage is calculated within synonymous codon families.
-- Missing relative-usage values are preserved in exported tables but are imputed with genome-average values only for dimensionality reduction and clustering.
-- tRNA-decoding analyses depend on the supplied decoding table and should be interpreted according to the assumptions encoded in that table.
 
 ## Citation
 
-If you use CodonPipe in published work, please cite the associated manuscript or repository release.
+See `CITATION.cff`.
 
-## License
+## Licence
 
-Please specify the license for this repository before public release.
+MIT. See `LICENSE`.
